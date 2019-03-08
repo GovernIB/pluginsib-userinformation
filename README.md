@@ -8,7 +8,7 @@ Repositori que conté i relaciona la informació de les dades d'un usuari a part
 
 **Implementacions**
 
-Directori | Nom | Descripció
+Directori | Descripció | Documentació
 ------------ | ------------- | -------------
 database | -- | -- 
 ldap | -- | --
