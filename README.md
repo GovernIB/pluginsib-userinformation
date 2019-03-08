@@ -1,4 +1,5 @@
 # ![Logo](https://github.com/GovernIB/maven/raw/binaris/pluginsib/projectinfo_Attachments/icon.jpg) pluginsib-userinformation-2.0
+*Plugin de consulta de dades d'usuaris*
 
 ***Descripció***
 
