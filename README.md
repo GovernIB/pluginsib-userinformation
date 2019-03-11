@@ -10,5 +10,5 @@ Repositori que conté i relaciona la informació de les dades d'un usuari a part
 
 Directori | Descripció | Documentació
 ------------ | ------------- | -------------
-database | -- | -- 
-ldap | -- | --
+database | Recupera les dades d'usuari de una BBDD. | -- 
+ldap | Recupera la informació d'usuari dels servidors ldap | --
