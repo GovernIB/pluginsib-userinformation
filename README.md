@@ -11,7 +11,7 @@ Repositori que conté  informació de les dades d'un usuari a partir del seu use
 
 ***Documentació***
 
-[Documentació branca estable](../../tree/pluginsib-userinformation-2.0#documentaci%C3%B3)
+[Documentació de branca](../../tree/pluginsib-userinformation-2.0#documentaci%C3%B3)
 
 **Enllaços**
 
