@@ -12,3 +12,9 @@ Directori | Descripció | Documentació
 ------------ | ------------- | -------------
 database | Recupera les dades d'usuari de una BBDD. | -- 
 ldap | Recupera la informació d'usuari dels servidors ldap | --
+
+#### ***Documentació***
+Directori | Descripció | Documentació
+------------ | ------------- | -------------
+------------ | ------------- | -------------
+
