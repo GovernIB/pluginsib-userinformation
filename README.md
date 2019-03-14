@@ -7,7 +7,7 @@ Repositori que conté i relaciona la informació de les dades d'un usuari a part
 
 
 #### ***Documentació***
-Directori | Descripció | Documentació
+Nom | Descripció | Enllaç
 ------------ | ------------- | -------------
 ------------ | ------------- | -------------
 
