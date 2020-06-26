@@ -10,6 +10,7 @@
     <module>api</module>
     <module>ldap</module>
     <module>database</module>
+    <module>keycloak</module>
   </modules>
   <dependencies>
     <dependency>
