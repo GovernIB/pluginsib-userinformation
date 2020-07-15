@@ -1,9 +1,12 @@
 package org.fundaciobit.pluginsib.userinformation.keycloak;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.Arrays;
+import java.util.Properties;
 
 import org.fundaciobit.pluginsib.userinformation.RolesInfo;
-import org.keycloak.admin.client.Keycloak;
+import org.fundaciobit.pluginsib.userinformation.UserInfo;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -43,30 +46,36 @@ public class AppTest extends TestCase
     public void testApp()
     {
     	
-    	
     	try {
 			
+    		String basepackage = "org.fundaciobit.sample.";
     		
-    		Keycloak kc = new KeyCloakUserInformationPlugin().getKeyCloakConnectionUsernamePassword("u999000","u999000", "keycloak-admin2");
+    		Properties prop = new Properties();
+    		
+    		prop.load(new FileInputStream(new File("sample.properties")));
+    		
+    		KeyCloakUserInformationPlugin kcui =new KeyCloakUserInformationPlugin(basepackage, prop);
     		
     		
+    		String[] usernames = {"carpeta", "admin", "anadal"};
+    		for (int i = 0; i < usernames.length; i++) {
+    			UserInfo ui = kcui.getUserInfoByUserName(usernames[i]);
+        		
+        		System.out.println(" - " + ui.getName() + " " + ui.getSurname1());
+			}
     		
-    		//kc.realm("CAIB").users().count();
-    		
-			 System.out.println("OK");
 			 
+    		
+    		//String[] users = kcui.getUsernamesByRol("CAR_ADMIN");
+			//System.out.println(Arrays.toString(users));
+    		
+    		
+    		
+    		RolesInfo ri = kcui.getRolesByUsername("anadal");
+			System.out.println(Arrays.toString( ri.getRoles()));
 			
-    		
-    		
-    		
-    		
-    		String[] users = new KeyCloakUserInformationPlugin().getUsernamesByRol("CAR_ADMIN");
-			 System.out.println(Arrays.toString(users));
-    		
-    		
-    		
-    		RolesInfo ri = new KeyCloakUserInformationPlugin().getRolesByUsername("anadal");
-			System.out.println( ri.getRoles());
+			System.out.println("Authenticate: " + kcui.authenticate("u999000", "u999000"));
+			System.out.println("Authenticate: " + kcui.authenticate("u999000", "u999000b"));
 			
 			
 		} catch (Exception e) {
@@ -74,58 +83,6 @@ public class AppTest extends TestCase
 			e.printStackTrace();
 		}
     	
-    	
-    	/*
-    		UsersResource usersResource = new KeyCloakUserInformationPlugin().getKeyCloakConnectionForUsers();
-    		MappingsRepresentation mr = usersResource.get("d208fbac-805a-4ca8-a610-6d67fe26da54").roles().getAll();
-
-    		System.out.println("ROLES: " + mr.getRealmMappings());
-    		*/
-    		
-    		
-
-//    	    UserResource userResource = usersResource.get("d208fbac-805a-4ca8-a610-6d67fe26da54");
-//    	    System.out.println(userResource.toRepresentation().getEmail());
-
-    		/*
-    		String username = "anadal";
-    		List<UserRepresentation> users = usersResource.search(username);
-
-    		UserRepresentation user = users.get(0);
-    		System.out.println("ID: " + user.getId());
-    		System.out.println("EMAIL: " + user.getEmail());
-    		System.out.println("NAME: " + user.getFirstName());
-    		System.out.println("LAST NAME: " + user.getLastName());
-
-    		System.out.println("USERNAME: " + user.getUsername());
-
-    		System.out.println("ORIGIN: " + user.getOrigin());
-    		System.out.println("ATTRIBUTES: " + user.getAttributes());
-
-    		System.out.println("getFederationLink: " + user.getFederationLink());
-    		System.out.println("getFederatedIdentities: " + user.getFederatedIdentities());
-    		
-    		
-    		System.out.println(" user.getApplicationRoles() => " + user.getApplicationRoles());
-    		System.out.println(" user.getClientRoles() => " + user.getClientRoles());
-
-    		System.out.println(" user.getRealmRoles() => " + user.getRealmRoles());
-    		
-    		System.out.println(" user.getAccess() => " + user.getAccess());
-    		
-    		System.out.println(" user.getCredentials() => " + user.getCredentials());
-    		
-    		System.out.println(" user.getGroups() => " + user.getGroups());
-    		
-    		*/
-    		
-    		
-//    		List<UserRepresentation> all = usersResource.list();
-//    		
-//    		for (UserRepresentation ur : all) {
-//    			System.out.println("USERNAME : " + ur.getUsername());
-//			}
-
     	
     }
 }

@@ -2,7 +2,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.fundaciobit.pluginsib.userinformation.keycloak</groupId>
+    <groupId>org.fundaciobit.pluginsib.userinformation</groupId>
     <artifactId>pluginsib-userinformation-keycloak</artifactId>
     <packaging>jar</packaging>
     <version>2.0.0</version>
@@ -26,29 +26,25 @@
             <version>6.0.1</version>
         </dependency>
 
+
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-jaxrs</artifactId>
             <version>3.6.3.Final</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-client</artifactId>
             <version>3.6.3.Final</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-jackson2-provider</artifactId>
             <version>3.6.3.Final</version>
-        </dependency>
-
-        <!-- API, java.xml.bind module -->
-        <dependency>
-            <groupId>jakarta.xml.bind</groupId>
-            <artifactId>jakarta.xml.bind-api</artifactId>
-            <version>2.3.2</version>
         </dependency>
 
         <dependency>

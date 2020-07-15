@@ -13,6 +13,7 @@ import org.fundaciobit.pluginsib.userinformation.IUserInformationPlugin;
 import org.fundaciobit.pluginsib.userinformation.RolesInfo;
 import org.fundaciobit.pluginsib.userinformation.UserInfo;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+import org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
@@ -78,13 +79,17 @@ public class KeyCloakUserInformationPlugin extends AbstractPluginProperties impl
 		UsersResource usersResource = keycloak.realm(getPropertyRequired(REALM_PROPERTY)).users();
 		return usersResource;
 	}
+	
+	public class CustomJacksonProvider extends ResteasyJackson2Provider {
+
+	}
 
 	private Keycloak getKeyCloakConnection() throws Exception {
 		Keycloak keycloak = KeycloakBuilder.builder().serverUrl(getPropertyRequired(SERVER_URL_PROPERTY))
 				.realm(getPropertyRequired(REALM_PROPERTY)).clientId(getPropertyRequired(CLIENT_ID_PROPERTY))
 				.clientSecret(getPropertyRequired(PASSWORD_SECRET_PROPERTY))
 				.grantType(OAuth2Constants.CLIENT_CREDENTIALS) // "client_credentials"
-				.resteasyClient(new ResteasyClientBuilder().connectionPoolSize(10).build()).build();
+				.resteasyClient(new ResteasyClientBuilder().connectionPoolSize(10).register(new CustomJacksonProvider()).build()).build();
 
 		keycloak.tokenManager().getAccessToken();
 		return keycloak;
@@ -94,7 +99,7 @@ public class KeyCloakUserInformationPlugin extends AbstractPluginProperties impl
 			throws Exception {
 		Keycloak keycloak = KeycloakBuilder.builder().serverUrl(getPropertyRequired(SERVER_URL_PROPERTY))
 				.realm(getPropertyRequired(REALM_PROPERTY)).clientId(clientID)// clientId("Keycloak-admin-for-login-users")
-				.password(password).username(username).grantType(OAuth2Constants.PASSWORD) // "password"
+				.password(password).username(username).grantType(OAuth2Constants.PASSWORD) // "password"				
 				.resteasyClient(new ResteasyClientBuilder().connectionPoolSize(10).build())
 
 				.build();
@@ -115,6 +120,9 @@ public class KeyCloakUserInformationPlugin extends AbstractPluginProperties impl
 
 		UsersResource usersResource = getKeyCloakConnectionForUsers();
 
+		
+		log.info("XYZ ZZZ KEYCLOAK::getUserInfoByUserName  ==>  " + usersResource);
+		
 		List<UserRepresentation> users = usersResource.search(username);
 
 		// users.get(0).get
