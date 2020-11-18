@@ -94,14 +94,9 @@ public class KeyCloakTest extends TestCase {
       String usr = "anadal";
       RolesInfo ri = kcui.getRolesByUsername(usr);
       System.out.println("Rols de " + usr + ": " + Arrays.toString(ri.getRoles()));
-      
 
-      
-      System.out.println("Authenticate: " + kcui.authenticate("anadal", "12RKBE09"));
-      System.out.println("Authenticate: " + kcui.authenticate("anadal", "12RKBE0922"));
-      
-      //System.out.println("Authenticate: " + kcui.authenticate("u999000", "u999000"));
-      //System.out.println("Authenticate: " + kcui.authenticate("u999000", "u999000b"));
+      System.out.println("Authenticate: " + kcui.authenticate("u999000", "u999000"));
+      System.out.println("Authenticate: " + kcui.authenticate("u999000", "u999000b"));
 
     } catch (Exception e) {
       // TODO Auto-generated catch block
