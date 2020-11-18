@@ -1,0 +1,38 @@
+	
+# Class Plugin  org.fundaciobit.pluginsib.userinformation.keycloak.KeyCloakUserInformationPlugin
+
+# BASE org.fundaciobit.sample
+
+# URL to KeyCloak Server
+org.fundaciobit.sample.pluginsib.userinformation.keycloak.serverurl=http://localhost:18080/auth/
+
+# Nom del Realm
+org.fundaciobit.sample.pluginsib.userinformation.keycloak.realm=GOIB
+
+# Client amb Access Type 'confidential'
+# Crear nou client en el realm corresponent. Ha de tenir "Access Type" a  confidential Només ha de tenir marcat "Service Accounts Enabled"
+org.fundaciobit.sample.pluginsib.userinformation.keycloak.client_id=keycloak-admin
+
+# Editar el client anterior i anar a la pipella de "Credentials". Pitjar sobre "Regenerate Secret". Copia el valor de Secret aquí
+org.fundaciobit.sample.pluginsib.userinformation.keycloak.password_secret=8103f9ff-6150-45fe-8d4a-76ad061f204e
+
+# Client configurat per l'autenticació dels usuris
+# Crear un Client amb "Access Type" a  'public' i marcar "Standard Flow Enabled" i "Direct Access Grants Enabled"
+org.fundaciobit.sample.pluginsib.userinformation.keycloak.client_id_for_user_autentication=GOIB-backend
+
+
+# Mappings. Mapejos entre valors de Attibutes de un usuari i els valors de UserInfo
+# Clau:  username, administrationID, name, surname1, surname2, email, language,
+#        phoneNumber, password,  address, company, website o gender( -1: unknown or undefined, 0 female, 1 male)
+# Valor:  Atribut definit dins "Attributes" de l'usuari Keycloak
+org.fundaciobit.sample.pluginsib.userinformation.keycloak.mapping.administrationID=nif
+
+#org.fundaciobit.sample.pluginsib.userinformation.keycloak.mapping.company=departmentNumber
+#org.fundaciobit.sample.pluginsib.userinformation.keycloak.mapping.surname1=sn1
+#org.fundaciobit.sample.pluginsib.userinformation.keycloak.mapping.surname2=sn2
+
+# Per depuració
+org.fundaciobit.sample.pluginsib.userinformation.keycloak.debug=true
+
+
+	
