@@ -85,13 +85,13 @@ public class KeyCloakUserInformationPlugin extends AbstractPluginProperties
     return "true".equals(debug);
   }
 
-  public RolesResource getKeyCloakConnectionForRoles() throws Exception {
+  protected RolesResource getKeyCloakConnectionForRoles() throws Exception {
     Keycloak keycloak = getKeyCloakConnection();
 
     return keycloak.realm(getPropertyRequired(REALM_PROPERTY)).roles();
   }
 
-  public UsersResource getKeyCloakConnectionForUsers() throws Exception {
+  protected UsersResource getKeyCloakConnectionForUsers() throws Exception {
     Keycloak keycloak = getKeyCloakConnection();
     UsersResource usersResource = keycloak.realm(getPropertyRequired(REALM_PROPERTY)).users();
     return usersResource;
@@ -116,7 +116,7 @@ public class KeyCloakUserInformationPlugin extends AbstractPluginProperties
     return keycloak;
   }
 
-  public Keycloak getKeyCloakConnectionUsernamePassword(String username, String password,
+  protected Keycloak getKeyCloakConnectionUsernamePassword(String username, String password,
       String clientID) throws Exception {
     Keycloak keycloak = KeycloakBuilder.builder()
         .serverUrl(getPropertyRequired(SERVER_URL_PROPERTY))

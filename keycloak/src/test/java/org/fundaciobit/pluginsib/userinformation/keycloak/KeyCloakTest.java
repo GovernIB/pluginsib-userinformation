@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.util.Arrays;
 import java.util.Properties;
 
+import org.fundaciobit.pluginsib.core.utils.PluginsManager;
+import org.fundaciobit.pluginsib.userinformation.IUserInformationPlugin;
 import org.fundaciobit.pluginsib.userinformation.RolesInfo;
 import org.fundaciobit.pluginsib.userinformation.UserInfo;
 
@@ -44,7 +46,12 @@ public class KeyCloakTest extends TestCase {
 
     try {
 
-      String basepackage = "org.fundaciobit.sample.";
+      final String basepackage = "org.fundaciobit.sample.";
+      
+      final String propertyPlugin = basepackage + "userinformationplugin";
+
+      
+                 
 
       Properties prop = new Properties();
       
@@ -57,8 +64,10 @@ public class KeyCloakTest extends TestCase {
 
       prop.load(new FileInputStream(f));
 
-      KeyCloakUserInformationPlugin kcui = new KeyCloakUserInformationPlugin(basepackage,
-          prop);
+      IUserInformationPlugin kcui;
+      
+      //kcui = new KeyCloakUserInformationPlugin(basepackage, prop);
+      kcui = (IUserInformationPlugin) PluginsManager.instancePluginByClass(KeyCloakUserInformationPlugin.class, basepackage, prop);
       
       
       for (int i = 0; i< 2; i++) {
@@ -84,9 +93,7 @@ public class KeyCloakTest extends TestCase {
 
         System.out.println(" - Nom: " + ui.getName() + " | Llinatge  " + ui.getSurname1() + " | nif: " + ui.getAdministrationID());
       }
-      
-      
-      
+
 
       String[] users = kcui.getUsernamesByRol("CAR_ADMIN");
       System.out.println("Usuaris amb ROL 'CAR_ADMIN': " + Arrays.toString(users));
@@ -94,8 +101,11 @@ public class KeyCloakTest extends TestCase {
       String usr = "anadal";
       RolesInfo ri = kcui.getRolesByUsername(usr);
       System.out.println("Rols de " + usr + ": " + Arrays.toString(ri.getRoles()));
+      
+      System.out.println("Authenticate: " + kcui.authenticate("anadal", "anadal"));
 
       System.out.println("Authenticate: " + kcui.authenticate("u999000", "u999000"));
+      
       System.out.println("Authenticate: " + kcui.authenticate("u999000", "u999000b"));
 
     } catch (Exception e) {

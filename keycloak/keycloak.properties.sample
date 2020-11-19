@@ -11,14 +11,14 @@ org.fundaciobit.sample.pluginsib.userinformation.keycloak.realm=GOIB
 
 # Client amb Access Type 'confidential'
 # Crear nou client en el realm corresponent. Ha de tenir "Access Type" a  confidential Només ha de tenir marcat "Service Accounts Enabled"
-org.fundaciobit.sample.pluginsib.userinformation.keycloak.client_id=keycloak-admin
+org.fundaciobit.sample.pluginsib.userinformation.keycloak.client_id=goib-ws
 
 # Editar el client anterior i anar a la pipella de "Credentials". Pitjar sobre "Regenerate Secret". Copia el valor de Secret aquí
 org.fundaciobit.sample.pluginsib.userinformation.keycloak.password_secret=8103f9ff-6150-45fe-8d4a-76ad061f204e
 
 # Client configurat per l'autenticació dels usuris
 # Crear un Client amb "Access Type" a  'public' i marcar "Standard Flow Enabled" i "Direct Access Grants Enabled"
-org.fundaciobit.sample.pluginsib.userinformation.keycloak.client_id_for_user_autentication=GOIB-backend
+org.fundaciobit.sample.pluginsib.userinformation.keycloak.client_id_for_user_autentication=goib-default
 
 
 # Mappings. Mapejos entre valors de Attibutes de un usuari i els valors de UserInfo
