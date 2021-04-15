@@ -21,3 +21,7 @@
 /database/.settings/org.eclipse.jdt.core.prefs
 /database/.settings/org.eclipse.m2e.core.prefs
 /keycloak/keycloak.properties
+/keycloakcaib/.settings
+/keycloakcaib/.classpath
+/keycloakcaib/.gitignore
+/keycloakcaib/.project

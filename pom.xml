@@ -11,6 +11,7 @@
     <module>ldap</module>
     <module>database</module>
     <module>keycloak</module>
+	<module>keycloakcaib</module>
   </modules>
   <dependencies>
     <dependency>
