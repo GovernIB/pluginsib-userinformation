@@ -12,6 +12,11 @@
         <version>2.0.0</version>
         <artifactId>pluginsib-userinformation</artifactId>
     </parent>
+	
+	<properties>
+		<resteasy.version>3.6.3.Final</resteasy.version> 
+		<keycloak.version>6.0.1</keycloak.version>
+	</properties>
 
     <dependencies>
         <dependency>
@@ -23,28 +28,38 @@
         <dependency>
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-admin-client</artifactId>
-            <version>6.0.1</version>
+            <version>${keycloak.version}</version>
         </dependency>
 
-
-        <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-jaxrs</artifactId>
-            <version>3.6.3.Final</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
+		<dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-client</artifactId>
-            <version>3.6.3.Final</version>
-            <scope>provided</scope>
+            <version>${resteasy.version}</version>
+            <!-- <scope>provided</scope> -->
+        </dependency>
+
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-multipart-provider</artifactId>
+			<version>${resteasy.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-jaxrs</artifactId>
+			<version>${resteasy.version}</version>
+		</dependency>
+
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-jaxb-provider</artifactId>
+            <version>${resteasy.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-jackson2-provider</artifactId>
-            <version>3.6.3.Final</version>
+            <version>${resteasy.version}</version>
         </dependency>
 
         <dependency>

@@ -70,7 +70,15 @@ public class KeyCloakTest extends TestCase {
       kcui = (IUserInformationPlugin) PluginsManager.instancePluginByClass(KeyCloakUserInformationPlugin.class, basepackage, prop);
       
       
-      for (int i = 0; i< 2; i++) {
+      String[] usernames = {  "carpeta", "admin", "anadal" };
+      for (int i = 0; i < usernames.length; i++) {
+        UserInfo ui = kcui.getUserInfoByUserName(usernames[i]);
+
+        System.out.println(" - Nom: " + ui.getName() + " | Llinatge  " + ui.getSurname1() + " | nif: " + ui.getAdministrationID());
+      }
+
+
+      {
         long start = System.currentTimeMillis();
         String nif =  "43096845C";
         
@@ -85,14 +93,7 @@ public class KeyCloakTest extends TestCase {
         System.out.println(" Ha tardat: " + (System.currentTimeMillis() - start));
       }
       
-      
 
-      String[] usernames = {  "carpeta", "admin", "anadal" };
-      for (int i = 0; i < usernames.length; i++) {
-        UserInfo ui = kcui.getUserInfoByUserName(usernames[i]);
-
-        System.out.println(" - Nom: " + ui.getName() + " | Llinatge  " + ui.getSurname1() + " | nif: " + ui.getAdministrationID());
-      }
 
 
       String[] users = kcui.getUsernamesByRol("CAR_ADMIN");
