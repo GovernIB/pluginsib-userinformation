@@ -4,12 +4,17 @@ import java.lang.reflect.Field;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeSet;
+
+import javax.ws.rs.QueryParam;
 
 import org.apache.log4j.Logger;
 import org.fundaciobit.pluginsib.core.utils.AbstractPluginProperties;
@@ -124,7 +129,8 @@ public class KeyCloakUserInformationPlugin extends AbstractPluginProperties
                 .clientId(getPropertyRequired(CLIENT_ID_FOR_USER_AUTHENTICATION_PROPERTY))
                 .password(password).username(username).grantType(OAuth2Constants.PASSWORD) // "password"
                 .resteasyClient(new ResteasyClientBuilder().connectionPoolSize(10)
-                        .register(new CustomJacksonProvider()).build()).build();
+                        .register(new CustomJacksonProvider()).build())
+                .build();
 
         keycloak.tokenManager().getAccessToken();
         return keycloak;
@@ -154,6 +160,8 @@ public class KeyCloakUserInformationPlugin extends AbstractPluginProperties
 
         UserInfo ui = null;
 
+        final String attributeUserNIF = getProperty(MAPPING_PROPERTY + "administrationID");
+
         while ((users = usersResource.list(start, step)) != null) {
 
             if (users.size() == 0) {
@@ -164,7 +172,6 @@ public class KeyCloakUserInformationPlugin extends AbstractPluginProperties
 
             start = start + step;
 
-            String attributeUserNIF = getProperty(MAPPING_PROPERTY + "administrationID");
             if (attributeUserNIF == null || attributeUserNIF.trim().length() == 0) {
                 log.error(
                         "La cerca empant Administration ID no és posible ja que no s'ha definit cap propietat mapping emprant la clau administrationID");
@@ -182,6 +189,9 @@ public class KeyCloakUserInformationPlugin extends AbstractPluginProperties
                     continue;
                 }
                 String nif = values.get(0);
+                if (nif == null) {
+                    continue;
+                }
 
                 cacheNifUsername.put(nif, ur.getUsername());
 
@@ -218,23 +228,32 @@ public class KeyCloakUserInformationPlugin extends AbstractPluginProperties
     @Override
     public UserInfo getUserInfoByUserName(String username) throws Exception {
 
+        if (username == null) {
+            log.warn("getUserInfoByUserName():: Username is null");
+            return null;
+        }
+
         UsersResource usersResource = getKeyCloakConnectionForUsers();
 
         log.info("XYZ ZZZ KEYCLOAK::getUserInfoByUserName  ==>  " + usersResource);
 
         List<UserRepresentation> users = usersResource.search(username);
 
-        // users.get(0).get
-
         if (users == null || users.size() == 0) {
             return null;
         }
 
-        UserRepresentation user = users.get(0);
+        for (UserRepresentation user : users) {
 
-        UserInfo ui = userRepresentationToUserInfo(user);
+            if (user.getUsername().equals(username)) {
 
-        return ui;
+                UserInfo ui = userRepresentationToUserInfo(user);
+
+                return ui;
+            }
+        }
+
+        return null;
 
     }
 
@@ -338,10 +357,12 @@ public class KeyCloakUserInformationPlugin extends AbstractPluginProperties
         try {
 
             Keycloak keycloak = getKeyCloakConnectionUsernamePassword(username, password);
-            
-            UsersResource usersResource = keycloak.realm(getPropertyRequired(REALM_PROPERTY)).users();
 
-            //System.out.println("XYZ ZZZ AUTHENTIXCATE " + kc.realms().findAll()); // serverInfo().getInfo().getComponentTypes());
+            UsersResource usersResource = keycloak.realm(getPropertyRequired(REALM_PROPERTY))
+                    .users();
+
+            // System.out.println("XYZ ZZZ AUTHENTIXCATE " + kc.realms().findAll()); //
+            // serverInfo().getInfo().getComponentTypes());
 
             return true;
         } catch (javax.ws.rs.NotAuthorizedException exceptionNotAuth) {
@@ -420,4 +441,158 @@ public class KeyCloakUserInformationPlugin extends AbstractPluginProperties
 
         return users.toArray(new String[users.size()]);
     }
+
+    public List<UserInfo> getUsersByPartialUserName(String partialusername) throws Exception {
+
+        UsersResource usersResource = getKeyCloakConnectionForUsers();
+
+        log.info("XYZ ZZZ KEYCLOAK::getUserInfoByUserName  ==>  " + usersResource);
+
+        String search = partialusername;
+
+        Integer firstResult = 0;
+
+        Integer maxResults = 20;
+
+        Boolean briefRepresentation = false;
+
+        // log.info(" usersResource.count() => " + usersResource.count());
+
+        List<UserRepresentation> users = usersResource.search(
+
+                search,
+
+                firstResult,
+
+                maxResults,
+
+                briefRepresentation
+
+        );
+        /*
+         * @QueryParam("username") String username,
+         * 
+         * @QueryParam("firstName") String firstName,
+         * 
+         * @QueryParam("lastName") String lastName,
+         * 
+         * @QueryParam("email") String email,
+         * 
+         * @QueryParam("first") Integer firstResult,
+         * 
+         * @QueryParam("max") Integer maxResults,
+         * 
+         * @QueryParam("briefRepresentation"
+         */
+
+        // users.get(0).get
+
+        List<UserInfo> us = new ArrayList<UserInfo>();
+
+        if (users == null || users.size() == 0) {
+            return us;
+        }
+
+        // UserRepresentation user = users.get(0);
+
+        for (UserRepresentation user : users) {
+            UserInfo ui = userRepresentationToUserInfo(user);
+            us.add(ui);
+        }
+
+        return us;
+
+    }
+
+    public List<UserInfo> getUsersByNameAndSurnames(String nameOrSurname) throws Exception {
+
+        List<UserInfo> l1 = getUsersByNameAndSurnames(nameOrSurname, null);
+
+        List<UserInfo> l2 = getUsersByNameAndSurnames(null, nameOrSurname);
+
+        Set<UserInfo> users = new TreeSet<UserInfo>(new Comparator<UserInfo>() {
+            @Override
+            public int compare(UserInfo o1, UserInfo o2) {
+                return o1.getUsername().compareTo(o2.getUsername());
+            }
+        });
+
+        if (l1 != null) {
+            users.addAll(l1);
+        }
+
+        if (l2 != null) {
+            users.addAll(l2);
+        }
+
+        ArrayList<UserInfo> list = new ArrayList<UserInfo>(users);
+
+        return list;
+
+    }
+
+    protected List<UserInfo> getUsersByNameAndSurnames(String name, String surname)
+            throws Exception {
+
+        UsersResource usersResource = getKeyCloakConnectionForUsers();
+
+        String username = "";
+        String firstName = name;
+        String lastName = surname;
+        String email = "";
+
+        Integer firstResult = 0;
+
+        Integer maxResults = 20;
+
+        Boolean briefRepresentation = false;
+
+        // log.info(" usersResource.count() => " + usersResource.count());
+
+        List<UserRepresentation> users = usersResource.search(
+
+                username, firstName, lastName, email,
+
+                firstResult,
+
+                maxResults,
+
+                briefRepresentation
+
+        );
+        /*
+         * @QueryParam("username") String username,
+         * 
+         * @QueryParam("firstName") String firstName,
+         * 
+         * @QueryParam("lastName") String lastName,
+         * 
+         * @QueryParam("email") String email,
+         * 
+         * @QueryParam("first") Integer firstResult,
+         * 
+         * @QueryParam("max") Integer maxResults,
+         * 
+         * @QueryParam("briefRepresentation"
+         */
+
+        // users.get(0).get
+
+        List<UserInfo> us = new ArrayList<UserInfo>();
+
+        if (users == null || users.size() == 0) {
+            return us;
+        }
+
+        // UserRepresentation user = users.get(0);
+
+        for (UserRepresentation user : users) {
+            UserInfo ui = userRepresentationToUserInfo(user);
+            us.add(ui);
+        }
+
+        return us;
+
+    }
+
 }

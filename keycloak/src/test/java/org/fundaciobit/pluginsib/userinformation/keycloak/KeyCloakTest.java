@@ -3,7 +3,7 @@ package org.fundaciobit.pluginsib.userinformation.keycloak;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Arrays;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 
 import org.fundaciobit.pluginsib.core.utils.PluginsManager;
@@ -24,8 +24,7 @@ public class KeyCloakTest extends TestCase {
     /**
      * Create the test case
      *
-     * @param testName
-     *            name of the test case
+     * @param testName name of the test case
      */
     public KeyCloakTest(String testName) {
         super(testName);
@@ -44,15 +43,21 @@ public class KeyCloakTest extends TestCase {
             KeyCloakTest tester = new KeyCloakTest("HOLA");
             IUserInformationPlugin plugin = tester.getInstance();
 
-            tester.testGetUserInfoByUserName(plugin);
+            // tester.testSearchByPartialUsername(plugin);
 
-            tester.testGetUserInfoByAdminID(plugin);
+            tester.testUsersByNameAndSurnames(plugin);
 
-            tester.testGetUsernamesByRol(plugin);
-
-            tester.testGetRolesByUsername(plugin);
-
-            tester.testAuthenticate(plugin);
+            /*
+             * tester.testGetUserInfoByUserName(plugin);
+             * 
+             * tester.testGetUserInfoByAdminID(plugin);
+             * 
+             * tester.testGetUsernamesByRol(plugin);
+             * 
+             * tester.testGetRolesByUsername(plugin);
+             * 
+             * tester.testAuthenticate(plugin);
+             */
 
         } catch (Exception e) {
             // TODO Auto-generated catch block
@@ -61,8 +66,43 @@ public class KeyCloakTest extends TestCase {
 
     }
 
+    protected void testSearchByPartialUsername(IUserInformationPlugin plugin) throws Exception {
+
+        KeyCloakUserInformationPlugin keycloak = (KeyCloakUserInformationPlugin) plugin;
+
+        List<UserInfo> users = keycloak.getUsersByPartialUserName("transpa");
+
+        if (users == null || users.size() == 0) {
+            System.err.println("No hi ha usuaris ... ");
+        } else {
+            for (UserInfo userInfo : users) {
+                System.out.println(userInfo.getAdministrationID() + "\t" + userInfo.getUsername()
+                        + "\t" + userInfo.getEmail() + "\t" + userInfo.getFullName());
+            }
+        }
+
+    }
+
+    protected void testUsersByNameAndSurnames(IUserInformationPlugin plugin) throws Exception {
+
+        KeyCloakUserInformationPlugin keycloak = (KeyCloakUserInformationPlugin) plugin;
+
+        List<UserInfo> users = keycloak.getUsersByNameAndSurnames("ta");
+
+        if (users == null || users.size() == 0) {
+            System.err.println("No hi ha usuaris ... ");
+        } else {
+            for (UserInfo userInfo : users) {
+                System.out.println(userInfo.getAdministrationID() + "\t" + userInfo.getUsername()
+                        + "\t" + userInfo.getEmail() + "\t" + userInfo.getFullName());
+            }
+        }
+
+    }
+
     protected void testGetRolesByUsername(IUserInformationPlugin plugin) throws Exception {
-        String[] usrs = new String[] { "u80067", "anadal" };
+
+        String[] usrs = new String[] { "anadal" };
         for (String usr : usrs) {
             RolesInfo ri = plugin.getRolesByUsername(usr);
             if (ri == null) {
@@ -97,9 +137,8 @@ public class KeyCloakTest extends TestCase {
         if (ui == null) {
             System.err.println(" No es troba l'usuari amb NIF " + nif);
         } else {
-            System.out.println(
-                    " Usuari amb NIF " + nif + ": Nom " + ui.getName() + " | Llinatge  "
-                            + ui.getSurname1() + " | nif: " + ui.getAdministrationID());
+            System.out.println(" Usuari amb NIF " + nif + ": Nom " + ui.getName() + " | Llinatge  "
+                    + ui.getSurname1() + " | nif: " + ui.getAdministrationID());
         }
 
         System.out.println(" Ha tardat: " + (System.currentTimeMillis() - start));
@@ -111,8 +150,8 @@ public class KeyCloakTest extends TestCase {
             UserInfo ui = kcui.getUserInfoByUserName(usernames[i]);
 
             if (ui != null) {
-                System.out.println(" - Nom: " + ui.getName() + " | Llinatge  "
-                        + ui.getSurname1() + " | nif: " + ui.getAdministrationID());
+                System.out.println(" - Nom: " + ui.getName() + " | Llinatge  " + ui.getSurname1()
+                        + " | nif: " + ui.getAdministrationID());
             } else {
                 System.err.println(" EL username [" + usernames[i] + "] no existeix !!!!");
             }
