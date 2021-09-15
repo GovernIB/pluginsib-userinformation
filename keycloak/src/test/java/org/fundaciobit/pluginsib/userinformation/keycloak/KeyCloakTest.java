@@ -3,100 +3,189 @@ package org.fundaciobit.pluginsib.userinformation.keycloak;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
 import org.fundaciobit.pluginsib.core.utils.PluginsManager;
 import org.fundaciobit.pluginsib.userinformation.IUserInformationPlugin;
 import org.fundaciobit.pluginsib.userinformation.RolesInfo;
+import org.fundaciobit.pluginsib.userinformation.SearchStatus;
+import org.fundaciobit.pluginsib.userinformation.SearchUsersResult;
 import org.fundaciobit.pluginsib.userinformation.UserInfo;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * Unit test for simple App.
  * 
  * @author anadal (u80067)
  */
-public class KeyCloakTest extends TestCase {
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public KeyCloakTest(String testName) {
-        super(testName);
-    }
+public class KeyCloakTest {
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite() {
-        return new TestSuite(KeyCloakTest.class);
-    }
+    protected final Logger log = Logger.getLogger(getClass());
 
     public static void main(String[] args) {
 
         try {
-            KeyCloakTest tester = new KeyCloakTest("HOLA");
+            KeyCloakTest tester = new KeyCloakTest();
             IUserInformationPlugin plugin = tester.getInstance();
 
-            // tester.testSearchByPartialUsername(plugin);
+            // ((KeyCloakUserInformationPlugin) plugin).searchByAttributes();
 
-            tester.testUsersByNameAndSurnames(plugin);
+            // XYZ ZZZ falta test EMAIL
 
-            /*
-             * tester.testGetUserInfoByUserName(plugin);
-             * 
-             * tester.testGetUserInfoByAdminID(plugin);
-             * 
-             * tester.testGetUsernamesByRol(plugin);
-             * 
-             * tester.testGetRolesByUsername(plugin);
-             * 
-             * tester.testAuthenticate(plugin);
-             */
+            tester.testSearchByPartialMultipleValuesOr(plugin);
+
+            tester.testSearchByPartialMultipleValuesAnd(plugin);
+
+            tester.testSearchByPartialAdministrationID(plugin);
+
+            tester.testSearchByPartialUsername(plugin);
+
+            tester.testGetUsersByPartialNameOrPartialSurnames(plugin);
+
+            tester.testGetUserInfoByUserName(plugin);
+
+            tester.testGetUserInfoByAdminID(plugin);
+
+            tester.testGetUsernamesByRol(plugin);
+
+            tester.testGetRolesByUsername(plugin);
+
+            tester.testAuthenticate(plugin);
 
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
+    }
+
+    protected void testSearchByPartialMultipleValuesOr(IUserInformationPlugin plugin)
+            throws Exception {
+
+        final boolean isAnd = false;
+
+        testSearchByPartialMultipleValuesAndOr(plugin, isAnd);
+
+    }
+
+    protected void testSearchByPartialMultipleValuesAnd(IUserInformationPlugin plugin)
+            throws Exception {
+
+        final boolean isAnd = true;
+
+        testSearchByPartialMultipleValuesAndOr(plugin, isAnd);
+
+    }
+
+    protected void testSearchByPartialMultipleValuesAndOr(IUserInformationPlugin plugin,
+            boolean isAnd) throws Exception {
+
+        KeyCloakUserInformationPlugin keycloak = (KeyCloakUserInformationPlugin) plugin;
+
+        Map<String, UserInfo> partialValues = new HashMap<String, UserInfo>();
+        /// toUserInfo( username, firstName, lastName, email, administrationID)
+        partialValues.put("Username {ana}", toUserInfo("ana", null, null, null, null));
+        partialValues.put("NIF {430}", toUserInfo(null, null, null, null, "430"));
+        partialValues.put("User {ana} & NIF '430'", toUserInfo("an", null, null, null, "430"));
+        partialValues.put("Email {dgtic}", toUserInfo(null, null, null, "dgtic", null));
+        partialValues.put("Llinatge {er} & Email {dgtic}", toUserInfo(null, null, "er", "dgtic", null));
+
+        final String titol = " ========= CERCA AMB MULTIPLES VALORS:: ";
+
+        for (Entry<String, UserInfo> entry : partialValues.entrySet()) {
+            log.info("");
+            UserInfo ui = entry.getValue();
+            SearchUsersResult sur;
+            if (isAnd) {
+                sur = keycloak.getUsersByPartialValuesAnd(ui.getUsername(), ui.getName(),
+                        ui.getSurname1(), ui.getEmail(), ui.getAdministrationID());
+            } else {
+                sur = keycloak.getUsersByPartialValuesOr(ui.getUsername(), ui.getName(),
+                        ui.getSurname1(), ui.getEmail(), ui.getAdministrationID());
+            }
+            printSearchUsersResult(titol, entry.getKey(), sur);
+            log.info("");
+        }
+    }
+
+    /**
+     * 
+     * @param plugin
+     * @throws Exception
+     */
+    protected void testSearchByPartialAdministrationID(IUserInformationPlugin plugin)
+            throws Exception {
+
+        KeyCloakUserInformationPlugin keycloak = (KeyCloakUserInformationPlugin) plugin;
+
+        String[] partialNifs = { "4308", "430" };
+
+        final String titol = " ========= CERCA AMB NIF PARCIAL ";
+
+        for (String partialNif : partialNifs) {
+            log.info("");
+            SearchUsersResult sur = keycloak.getUsersByPartialAdministrationID(partialNif);
+            printSearchUsersResult(titol, partialNif, sur);
+            log.info("");
+        }
+    }
+
+    protected void printSearchUsersResult(final String titol, String textCerca,
+            SearchUsersResult sur) {
+
+        final String base = titol + "'" + textCerca + "' => ";
+
+        if (sur.getStatus().getResultCode() != SearchStatus.RESULT_OK) {
+            log.error(base + " ERROR = " + sur.getStatus().getResultMessage());
+        } else {
+
+            List<UserInfo> users = sur.getUsers();
+
+            if (users == null || users.size() == 0) {
+                log.info(base + " No s'han trobat usuaris ... ");
+            } else {
+                log.info(base + " USUARIS TROBATS " + users.size());
+                for (UserInfo userInfo : users) {
+                    log.info("      - " + userInfo.getAdministrationID() + "\t"
+                            + userInfo.getUsername() + "\t" + userInfo.getEmail() + "\t"
+                            + userInfo.getFullName());
+                }
+            }
+        }
     }
 
     protected void testSearchByPartialUsername(IUserInformationPlugin plugin) throws Exception {
 
         KeyCloakUserInformationPlugin keycloak = (KeyCloakUserInformationPlugin) plugin;
 
-        List<UserInfo> users = keycloak.getUsersByPartialUserName("transpa");
+        final String titol = " ========= CERCA AMB USERNAME PARCIAL ";
 
-        if (users == null || users.size() == 0) {
-            System.err.println("No hi ha usuaris ... ");
-        } else {
-            for (UserInfo userInfo : users) {
-                System.out.println(userInfo.getAdministrationID() + "\t" + userInfo.getUsername()
-                        + "\t" + userInfo.getEmail() + "\t" + userInfo.getFullName());
-            }
+        final String[] partialUsernames = { "ana", "spa", "cal", "caib" };
+
+        for (String partialUsername : partialUsernames) {
+            log.info("-------------------------------------");
+            SearchUsersResult sur = keycloak.getUsersByPartialUserName(partialUsername);
+            printSearchUsersResult(titol, partialUsername, sur);
+            log.info("");
         }
 
     }
 
-    protected void testUsersByNameAndSurnames(IUserInformationPlugin plugin) throws Exception {
+    protected void testGetUsersByPartialNameOrPartialSurnames(IUserInformationPlugin plugin) throws Exception {
 
         KeyCloakUserInformationPlugin keycloak = (KeyCloakUserInformationPlugin) plugin;
 
-        List<UserInfo> users = keycloak.getUsersByNameAndSurnames("ta");
+        final String titol = " ========= CERCA AMB NOM/LLINATGE PARCIAL ";
 
-        if (users == null || users.size() == 0) {
-            System.err.println("No hi ha usuaris ... ");
-        } else {
-            for (UserInfo userInfo : users) {
-                System.out.println(userInfo.getAdministrationID() + "\t" + userInfo.getUsername()
-                        + "\t" + userInfo.getEmail() + "\t" + userInfo.getFullName());
-            }
-        }
+        final String partialNameOrPartialSurnames = "nad";
+
+        SearchUsersResult sur = keycloak
+                .getUsersByPartialNameOrPartialSurnames(partialNameOrPartialSurnames);
+
+        printSearchUsersResult(titol, partialNameOrPartialSurnames, sur);
 
     }
 
@@ -180,4 +269,20 @@ public class KeyCloakTest extends TestCase {
                 .instancePluginByClass(KeyCloakUserInformationPlugin.class, basepackage, prop);
         return kcui;
     }
+
+    protected UserInfo toUserInfo(String usernamePartial, String firstNamePartial,
+            String lastNamePartial, String emailPartial, String administrationIDPartial)
+            throws Exception {
+        UserInfo ui = new UserInfo();
+
+        ui.setUsername(usernamePartial);
+        ui.setName(firstNamePartial);
+        ui.setSurname1(lastNamePartial);
+        ui.setEmail(emailPartial);
+        ui.setAdministrationID(administrationIDPartial);
+
+        return ui;
+
+    }
+
 }

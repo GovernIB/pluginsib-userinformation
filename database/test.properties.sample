@@ -1,0 +1,24 @@
+
+plugin.propeties=./plugin.properties
+plugin.keybase=es.caib.portafib.
+
+usernames=anadal,admin,carpeta
+
+# Per autenticació .. 
+auth.0.username=anadal
+auth.0.password=anadal1234
+
+auth.1.username=anadal
+auth.1.password=anadal
+
+auth.2.username=admin
+auth.2.password=admin
+
+
+partial.username=ana,spa,cal,caib,sol
+
+partial.nif=4308,430,123,876
+
+partial.email=ana,spa,cal,caib,CaIb,sol
+
+partial.namesurname=nad,cal

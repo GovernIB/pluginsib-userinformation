@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.Properties;
 
 import org.fundaciobit.pluginsib.userinformation.UserInfo;
-import org.fundaciobit.plugins.userinformation.ldap.LdapUserInformationPlugin;
 
 /**
  * 

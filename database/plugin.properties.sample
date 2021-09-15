@@ -1,0 +1,52 @@
+
+
+es.caib.portafib.userinformationplugin=org.fundaciobit.pluginsib.userinformation.database.DataBaseUserInformationPlugin
+
+# Database For JBOSS 
+#es.caib.portafib.pluginsib.userinformation.database.jndi=java:/es.caib.seycon.db.wl
+
+# Database For Standalone Apps
+es.caib.portafib.pluginsib.userinformation.database.connection.url=jdbc:postgresql://localhost:5432/seycon
+es.caib.portafib.pluginsib.userinformation.database.connection.username=seycon
+es.caib.portafib.pluginsib.userinformation.database.connection.password=seycon
+
+# required
+es.caib.portafib.pluginsib.userinformation.database.users_table=SC_WL_USUARI
+es.caib.portafib.pluginsib.userinformation.database.username_column=USU_CODI
+es.caib.portafib.pluginsib.userinformation.database.administrationID_column=USU_NIF
+es.caib.portafib.pluginsib.userinformation.database.name_column=USU_NOM
+es.caib.portafib.pluginsib.userinformation.database.password_column=USU_PASS
+
+# optional
+es.caib.portafib.pluginsib.userinformation.database.email_column=CONCAT(USU_CODI,'@fundaciobit.org')
+#es.caib.portafib.pluginsib.userinformation.database.surname1_column
+#es.caib.portafib.pluginsib.userinformation.database.surname2_column      
+#es.caib.portafib.pluginsib.userinformation.database.language_column
+#es.caib.portafib.pluginsib.userinformation.database.phoneNumber_column
+
+#es.caib.portafib.pluginsib.userinformation.database.gender_column
+#es.caib.portafib.pluginsib.userinformation.database.address_column
+#es.caib.portafib.pluginsib.userinformation.database.company_column
+#es.caib.portafib.pluginsib.userinformation.database.companyArea_column
+#es.caib.portafib.pluginsib.userinformation.database.companyDepartment_column
+#es.caib.portafib.pluginsib.userinformation.database.website_column
+#es.caib.portafib.pluginsib.userinformation.database.birthDate_column
+#es.caib.portafib.pluginsib.userinformation.database.creationDate_column
+#es.caib.portafib.pluginsib.userinformation.database.notes_column
+
+
+es.caib.portafib.pluginsib.userinformation.database.userroles_table=SC_WL_USUGRU
+es.caib.portafib.pluginsib.userinformation.database.userroles_rolename_column=UGR_CODGRU
+es.caib.portafib.pluginsib.userinformation.database.userroles_username_column=UGR_CODUSU
+
+
+# Depuració
+es.caib.portafib.pluginsib.userinformation.database.debug=true
+
+
+# Cerques Parcials
+# es.caib.portafib.pluginsib.userinformation.database.minimumcharacterstosearch=3
+# es.caib.portafib.pluginsib.userinformation.database.maxallowednumberofresultsinpartialsearches=30
+
+
+
