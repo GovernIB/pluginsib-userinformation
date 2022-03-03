@@ -35,7 +35,7 @@ public class KeyCloakTest {
             // ((KeyCloakUserInformationPlugin) plugin).searchByAttributes();
 
             // XYZ ZZZ falta test EMAIL
-
+/*
             tester.testSearchByPartialMultipleValuesOr(plugin);
 
             tester.testSearchByPartialMultipleValuesAnd(plugin);
@@ -51,10 +51,12 @@ public class KeyCloakTest {
             tester.testGetUserInfoByAdminID(plugin);
 
             tester.testGetUsernamesByRol(plugin);
+            */
 
             tester.testGetRolesByUsername(plugin);
+            
 
-            tester.testAuthenticate(plugin);
+            //tester.testAuthenticate(plugin);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -191,7 +193,7 @@ public class KeyCloakTest {
 
     protected void testGetRolesByUsername(IUserInformationPlugin plugin) throws Exception {
 
-        String[] usrs = new String[] { "anadal" };
+        String[] usrs = new String[] { "anadal" };        
         for (String usr : usrs) {
             RolesInfo ri = plugin.getRolesByUsername(usr);
             if (ri == null) {
