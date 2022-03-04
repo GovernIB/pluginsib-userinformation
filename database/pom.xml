@@ -34,7 +34,7 @@
 		<dependency>
 			<groupId>org.fundaciobit.pluginsib.userinformation</groupId>
 			<artifactId>pluginsib-userinformation-api</artifactId>
-			<version>3.0.0</version>
+			<version>${pluginsib.userinformation.api.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.oracle</groupId>
