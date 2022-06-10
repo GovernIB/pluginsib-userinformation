@@ -11,6 +11,7 @@
 	</parent>
 	<properties>
 		<resteasy.version>3.6.3.Final</resteasy.version>
+		<keycloak.version>8.0.1</keycloak.version> <!-- 8.0.1 -->
 	</properties>
 	<dependencies>
 		<dependency>

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -16,6 +17,7 @@ import org.fundaciobit.pluginsib.userinformation.RolesInfo;
 import org.fundaciobit.pluginsib.userinformation.SearchStatus;
 import org.fundaciobit.pluginsib.userinformation.SearchUsersResult;
 import org.fundaciobit.pluginsib.userinformation.UserInfo;
+
 
 /**
  * Unit test for simple App.
@@ -32,10 +34,13 @@ public class KeyCloakTest {
             KeyCloakTest tester = new KeyCloakTest();
             IUserInformationPlugin plugin = tester.getInstance();
 
-            // ((KeyCloakUserInformationPlugin) plugin).searchByAttributes();
-
+            // test getAllUsernames
+            long start = System.currentTimeMillis();
+            System.out.println("All usernames:" + plugin.getAllUsernames().length);
+            System.out.println((System.currentTimeMillis() - start) + " ms");
+            /*
             // XYZ ZZZ falta test EMAIL
-/*
+
             tester.testSearchByPartialMultipleValuesOr(plugin);
 
             tester.testSearchByPartialMultipleValuesAnd(plugin);
@@ -45,16 +50,18 @@ public class KeyCloakTest {
             tester.testSearchByPartialUsername(plugin);
 
             tester.testGetUsersByPartialNameOrPartialSurnames(plugin);
+            
 
+            /*
             tester.testGetUserInfoByUserName(plugin);
 
             tester.testGetUserInfoByAdminID(plugin);
+            */
+            
+            
+            //tester.testGetRolesByUsername(plugin);
 
             tester.testGetUsernamesByRol(plugin);
-            */
-
-            tester.testGetRolesByUsername(plugin);
-            
 
             //tester.testAuthenticate(plugin);
 
@@ -193,7 +200,7 @@ public class KeyCloakTest {
 
     protected void testGetRolesByUsername(IUserInformationPlugin plugin) throws Exception {
 
-        String[] usrs = new String[] { "anadal" };        
+        String[] usrs = new String[] { "fbosch" };        
         for (String usr : usrs) {
             RolesInfo ri = plugin.getRolesByUsername(usr);
             if (ri == null) {
@@ -215,8 +222,16 @@ public class KeyCloakTest {
     }
 
     protected void testGetUsernamesByRol(IUserInformationPlugin plugin) throws Exception {
-        String[] users = plugin.getUsernamesByRol("CAR_ADMIN");
-        System.out.println("Usuaris amb ROL 'CAR_ADMIN': " + Arrays.toString(users));
+        
+        //String rol = "IGE_USER";
+        //String rol = "DEM_USER";
+        String rol = "IGE_ADMIN";
+        //String rol = "PFI_ADMIN";
+        //String rol = "CAR_SUPER";
+        //String rol = "CAR_ADMIN";
+        
+        String[] users = plugin.getUsernamesByRol(rol);
+        System.out.println("Usuaris amb ROL '" + rol + "': " + Arrays.toString(users));
     }
 
     protected void testGetUserInfoByAdminID(IUserInformationPlugin plugin) throws Exception {

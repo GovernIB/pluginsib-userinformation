@@ -25,9 +25,13 @@ import org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
+import org.keycloak.admin.client.resource.ClientResource;
+import org.keycloak.admin.client.resource.ClientsResource;
+import org.keycloak.admin.client.resource.RoleResource;
 import org.keycloak.admin.client.resource.RolesResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.ClientMappingsRepresentation;
+import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.MappingsRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -105,10 +109,8 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
                 return Integer.parseInt(minStr);
             }
         } catch (NumberFormatException e) {
-            log.warn(
-                    "Propietat " + this.getPropertyKeyBase() + MINIMUM_CHARACTERS_TO_SEARCH_PROPERTY
-                            + " ha de definir un sencer: " + e.getMessage(),
-                    e);
+            final String prop = this.getPropertyKeyBase() + MINIMUM_CHARACTERS_TO_SEARCH_PROPERTY;
+            log.warn("Propietat " + prop + " ha de definir un sencer: " + e.getMessage(), e);
         }
         return defaultValue;
     }
@@ -132,6 +134,7 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
         Keycloak keycloak = getKeyCloakConnection();
 
         return keycloak.realm(getPropertyRequired(REALM_PROPERTY)).roles();
+
     }
 
     protected UsersResource getKeyCloakConnectionForUsers() throws Exception {
@@ -144,7 +147,7 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
 
     }
 
-    private Keycloak getKeyCloakConnection() throws Exception {
+    protected Keycloak getKeyCloakConnection() throws Exception {
         Keycloak keycloak = KeycloakBuilder.builder()
                 .serverUrl(getPropertyRequired(SERVER_URL_PROPERTY))
                 .realm(getPropertyRequired(REALM_PROPERTY))
@@ -288,14 +291,13 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
 
     protected Set<String> mappingsAvailable = null;
 
-    
     /**
-     * Camps de UserInfo que excuim ja que venen amb l'API de keyCloak
-     * Excluim "birthDate" i "creationDate"  ja que són Dates.
+     * Camps de UserInfo que excuim ja que venen amb l'API de keyCloak Excluim
+     * "birthDate" i "creationDate" ja que són Dates.
      */
-    protected final HashSet<String> attributesToExclude = new HashSet<String>(Arrays.asList("id",
-            "username", "email", "name", "socialNetworks", "attributes", "birthDate", "creationDate" 
-    ));
+    protected final HashSet<String> attributesToExclude = new HashSet<String>(
+            Arrays.asList("id", "username", "email", "name", "socialNetworks", "attributes",
+                    "birthDate", "creationDate"));
 
     /**
      * 
@@ -338,9 +340,8 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
 
                 HashSet<String> tmp = new HashSet<String>();
 
-                
-                for (String field :  getAvailableUserInfoFields().keySet()) {
-                    
+                for (String field : getAvailableUserInfoFields().keySet()) {
+
                     if (!attributesToExclude.contains(field)) {
                         tmp.add(field);
                     }
@@ -367,6 +368,12 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
                 }
 
                 List<String> list = userAttributes.get(attributeUser);
+                if (list == null || list.size() == 0) {
+                    log.warn("L'usuari " + user.getUsername() + " no t'he l'atribut ]"
+                            + attributeUser + "[");
+                    continue;
+                }
+
                 String attributeUserValue = list.get(0);
 
                 if (debug) {
@@ -481,30 +488,22 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
         UserRepresentation user = users.get(0);
 
         MappingsRepresentation mr = usersResource.get(user.getId()).roles().getAll();
-        List<String> roles = new ArrayList<String>();
+        Set<String> roles = new TreeSet<String>();
         {
-
             Map<String, ClientMappingsRepresentation> rolesClient = mr.getClientMappings();
-            // System.out.println("getClientMappings([[ " + entry.getKey() + " ]])");
-
             for (Entry<String, ClientMappingsRepresentation> entry : rolesClient.entrySet()) {
 
                 List<RoleRepresentation> rolesRepre = entry.getValue().getMappings();
 
                 for (RoleRepresentation rr : rolesRepre) {
-
-                    // System.out.println("getClientMappings(): ROLE: " + rr.getName());
                     roles.add(rr.getName());
                 }
-
-                //System.out.println();
             }
         }
 
         List<RoleRepresentation> rolesRepre = mr.getRealmMappings();
 
         for (RoleRepresentation rr : rolesRepre) {
-            // System.out.println("getRealmMappings(): ROLE: " + rr.getName());
             roles.add(rr.getName());
         }
 
@@ -516,17 +515,98 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
     @Override
     public String[] getUsernamesByRol(String rol) throws Exception {
 
-        RolesResource roleres = getKeyCloakConnectionForRoles();
+        // Usuaris del rol 'rol' del "client" (o resource")
 
-        Set<UserRepresentation> userRep = roleres.get(rol).getRoleUserMembers();
+        String appClient = getPropertyRequired(CLIENT_ID_PROPERTY);
+        Set<String> usernamesClientApp = getUsernamesByRolOfClient(rol, appClient);
 
-        List<String> users = new ArrayList<String>();
+        String personsClient = getPropertyRequired(CLIENT_ID_FOR_USER_AUTHENTICATION_PROPERTY);
+        Set<String> usernamesClientPersons = getUsernamesByRolOfClient(rol, personsClient);
 
-        for (UserRepresentation ur : userRep) {
-            users.add(ur.getUsername());
+        Set<String> usersRealm = getUsernamesByRolOfRealm(rol);
+
+        if (usernamesClientApp == null && usernamesClientPersons == null && usersRealm == null) {
+            return null;
+        } else {
+
+            Set<String> users = new TreeSet<String>();
+
+            if (usernamesClientApp != null) {
+                users.addAll(usernamesClientApp);
+            }
+
+            if (usernamesClientPersons != null) {
+                users.addAll(usernamesClientPersons);
+            }
+
+            if (usersRealm != null) {
+
+                users.addAll(usersRealm);
+            }
+
+            return users.toArray(new String[users.size()]);
+
         }
 
-        return users.toArray(new String[users.size()]);
+    }
+
+    private Set<String> getUsernamesByRolOfRealm(String rol) throws Exception {
+        RolesResource roleres = getKeyCloakConnectionForRoles();
+
+        try {
+
+            Set<UserRepresentation> userRep = roleres.get(rol).getRoleUserMembers();
+
+            Set<String> users = new HashSet<String>();
+            for (UserRepresentation ur : userRep) {
+                users.add(ur.getUsername());
+            }
+
+            return users;
+
+        } catch (javax.ws.rs.NotFoundException e) {
+            return null;
+        }
+    }
+
+    /**
+     * 
+     * @param rol
+     * @return
+     * @throws Exception
+     */
+    private Set<String> getUsernamesByRolOfClient(String rol, String client) throws Exception {
+        Keycloak keycloak = this.getKeyCloakConnection();
+
+        ClientsResource clientsApi = keycloak
+                .realm(getPropertyRequired(KeyCloakUserInformationPlugin.REALM_PROPERTY)).clients();
+
+        List<ClientRepresentation> crList;
+        crList = clientsApi.findByClientId(client);
+
+        if (crList == null || crList.size() == 0) {
+            return null;
+        }
+
+        ClientResource c = clientsApi.get(crList.get(0).getId());
+
+        RolesResource rrs = c.roles();
+
+        try {
+            Set<String> users = new HashSet<String>();
+            RoleResource rr = rrs.get(rol);
+
+            Set<UserRepresentation> userRep = rr.getRoleUserMembers();
+
+            for (UserRepresentation ur : userRep) {
+                users.add(ur.getUsername());
+            }
+
+            return users;
+
+        } catch (javax.ws.rs.NotFoundException e) {
+            return null;
+        }
     }
 
     /**
@@ -538,8 +618,6 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
      */
     @Override
     public SearchUsersResult getUsersByPartialUserName(String partialUsername) throws Exception {
-
-        
 
         SearchStatus ss = checkMinimumPartialString(partialUsername, "partialUsername");
         if (ss != null) {
@@ -597,7 +675,7 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
 
             return new SearchUsersResult(users);
         } else {
-            
+
             UsersResource usersResource = getKeyCloakConnectionForUsers();
 
             final int step = 30;
@@ -812,8 +890,6 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
         return null; // OK
 
     }
-
-    
 
     @Override
     public SearchUsersResult getUsersByPartialAdministrationID(String partialAdministratorID)

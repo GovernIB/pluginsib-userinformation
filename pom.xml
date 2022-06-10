@@ -10,7 +10,6 @@
 	<name>PluginsIB - UserInformation</name>
 	<properties>
 	    <pluginsib.userinformation.api.version>3.0.0</pluginsib.userinformation.api.version>
-        <keycloak.version>8.0.1</keycloak.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
