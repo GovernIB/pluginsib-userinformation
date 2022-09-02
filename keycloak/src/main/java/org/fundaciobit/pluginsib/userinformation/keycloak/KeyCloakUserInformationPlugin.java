@@ -7,14 +7,12 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
-
-import javax.ws.rs.QueryParam;
 
 import org.apache.log4j.Logger;
 import org.fundaciobit.pluginsib.core.utils.AbstractPluginProperties;
@@ -29,6 +27,7 @@ import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.RolesResource;
 import org.keycloak.admin.client.resource.UsersResource;
+import org.keycloak.representations.idm.ClientMappingsRepresentation;
 import org.keycloak.representations.idm.MappingsRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -398,6 +397,7 @@ public class KeyCloakUserInformationPlugin extends AbstractPluginProperties
     @Override
     public RolesInfo getRolesByUsername(String username) throws Exception {
 
+
         UsersResource usersResource = getKeyCloakConnectionForUsers();
 
         List<UserRepresentation> users = usersResource.search(username);
@@ -411,13 +411,30 @@ public class KeyCloakUserInformationPlugin extends AbstractPluginProperties
         UserRepresentation user = users.get(0);
 
         MappingsRepresentation mr = usersResource.get(user.getId()).roles().getAll();
+        List<String> roles = new ArrayList<String>();
+        {
+
+            Map<String, ClientMappingsRepresentation> rolesClient = mr.getClientMappings();
+            // System.out.println("getClientMappings([[ " + entry.getKey() + " ]])");
+
+            for (Entry<String, ClientMappingsRepresentation> entry : rolesClient.entrySet()) {
+
+                List<RoleRepresentation> rolesRepre = entry.getValue().getMappings();
+
+                for (RoleRepresentation rr : rolesRepre) {
+
+                    // System.out.println("getClientMappings(): ROLE: " + rr.getName());
+                    roles.add(rr.getName());
+                }
+
+                //System.out.println();
+            }
+        }
 
         List<RoleRepresentation> rolesRepre = mr.getRealmMappings();
-        List<String> roles = new ArrayList<String>();
 
         for (RoleRepresentation rr : rolesRepre) {
-
-            // System.out.println("ROLES: " + rr.getName());
+            // System.out.println("getRealmMappings(): ROLE: " + rr.getName());
             roles.add(rr.getName());
         }
 
