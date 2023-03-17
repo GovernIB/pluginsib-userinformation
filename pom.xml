@@ -4,12 +4,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.fundaciobit.pluginsib.userinformation</groupId>
-	<version>3.0.0</version>
+	<version>3.1.0</version>
 	<artifactId>pluginsib-userinformation</artifactId>
 	<packaging>pom</packaging>
 	<name>PluginsIB - UserInformation</name>
 	<properties>
-	    <pluginsib.userinformation.api.version>3.0.0</pluginsib.userinformation.api.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -20,9 +19,6 @@
 		<module>api</module>
 		<module>ldap</module>
 		<module>database</module>
-		<!--
-		<module>keycloak-custom-api-for-plugin</module>
-		-->
 		<module>keycloak</module>
 	</modules>
 	<dependencies>

@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,7 +16,6 @@ import org.fundaciobit.pluginsib.userinformation.RolesInfo;
 import org.fundaciobit.pluginsib.userinformation.SearchStatus;
 import org.fundaciobit.pluginsib.userinformation.SearchUsersResult;
 import org.fundaciobit.pluginsib.userinformation.UserInfo;
-
 
 /**
  * Unit test for simple App.
@@ -40,28 +38,26 @@ public class KeyCloakTest {
             System.out.println((System.currentTimeMillis() - start) + " ms");
             /*
             // XYZ ZZZ falta test EMAIL
-
+            
             tester.testSearchByPartialMultipleValuesOr(plugin);
-
+            
             tester.testSearchByPartialMultipleValuesAnd(plugin);
-
+            
             tester.testSearchByPartialAdministrationID(plugin);
-
+            
             tester.testSearchByPartialUsername(plugin);
-
+            
             tester.testGetUsersByPartialNameOrPartialSurnames(plugin);
             
-
-            /*
+            
+            */
             tester.testGetUserInfoByUserName(plugin);
 
-            tester.testGetUserInfoByAdminID(plugin);
-            */
-            
-            
+            //tester.testGetUserInfoByAdminID(plugin);
+
             //tester.testGetRolesByUsername(plugin);
 
-            tester.testGetUsernamesByRol(plugin);
+            //tester.testGetUsernamesByRol(plugin);
 
             //tester.testAuthenticate(plugin);
 
@@ -71,8 +67,7 @@ public class KeyCloakTest {
 
     }
 
-    protected void testSearchByPartialMultipleValuesOr(IUserInformationPlugin plugin)
-            throws Exception {
+    protected void testSearchByPartialMultipleValuesOr(IUserInformationPlugin plugin) throws Exception {
 
         final boolean isAnd = false;
 
@@ -80,8 +75,7 @@ public class KeyCloakTest {
 
     }
 
-    protected void testSearchByPartialMultipleValuesAnd(IUserInformationPlugin plugin)
-            throws Exception {
+    protected void testSearchByPartialMultipleValuesAnd(IUserInformationPlugin plugin) throws Exception {
 
         final boolean isAnd = true;
 
@@ -89,8 +83,8 @@ public class KeyCloakTest {
 
     }
 
-    protected void testSearchByPartialMultipleValuesAndOr(IUserInformationPlugin plugin,
-            boolean isAnd) throws Exception {
+    protected void testSearchByPartialMultipleValuesAndOr(IUserInformationPlugin plugin, boolean isAnd)
+            throws Exception {
 
         KeyCloakUserInformationPlugin keycloak = (KeyCloakUserInformationPlugin) plugin;
 
@@ -109,11 +103,11 @@ public class KeyCloakTest {
             UserInfo ui = entry.getValue();
             SearchUsersResult sur;
             if (isAnd) {
-                sur = keycloak.getUsersByPartialValuesAnd(ui.getUsername(), ui.getName(),
-                        ui.getSurname1(), ui.getEmail(), ui.getAdministrationID());
+                sur = keycloak.getUsersByPartialValuesAnd(ui.getUsername(), ui.getName(), ui.getSurname1(),
+                        ui.getEmail(), ui.getAdministrationID());
             } else {
-                sur = keycloak.getUsersByPartialValuesOr(ui.getUsername(), ui.getName(),
-                        ui.getSurname1(), ui.getEmail(), ui.getAdministrationID());
+                sur = keycloak.getUsersByPartialValuesOr(ui.getUsername(), ui.getName(), ui.getSurname1(),
+                        ui.getEmail(), ui.getAdministrationID());
             }
             printSearchUsersResult(titol, entry.getKey(), sur);
             log.info("");
@@ -125,8 +119,7 @@ public class KeyCloakTest {
      * @param plugin
      * @throws Exception
      */
-    protected void testSearchByPartialAdministrationID(IUserInformationPlugin plugin)
-            throws Exception {
+    protected void testSearchByPartialAdministrationID(IUserInformationPlugin plugin) throws Exception {
 
         KeyCloakUserInformationPlugin keycloak = (KeyCloakUserInformationPlugin) plugin;
 
@@ -142,8 +135,7 @@ public class KeyCloakTest {
         }
     }
 
-    protected void printSearchUsersResult(final String titol, String textCerca,
-            SearchUsersResult sur) {
+    protected void printSearchUsersResult(final String titol, String textCerca, SearchUsersResult sur) {
 
         final String base = titol + "'" + textCerca + "' => ";
 
@@ -158,9 +150,8 @@ public class KeyCloakTest {
             } else {
                 log.info(base + " USUARIS TROBATS " + users.size());
                 for (UserInfo userInfo : users) {
-                    log.info("      - " + userInfo.getAdministrationID() + "\t"
-                            + userInfo.getUsername() + "\t" + userInfo.getEmail() + "\t"
-                            + userInfo.getFullName());
+                    log.info("      - " + userInfo.getAdministrationID() + "\t" + userInfo.getUsername() + "\t"
+                            + userInfo.getEmail() + "\t" + userInfo.getFullName());
                 }
             }
         }
@@ -191,8 +182,7 @@ public class KeyCloakTest {
 
         final String partialNameOrPartialSurnames = "nad";
 
-        SearchUsersResult sur = keycloak
-                .getUsersByPartialNameOrPartialSurnames(partialNameOrPartialSurnames);
+        SearchUsersResult sur = keycloak.getUsersByPartialNameOrPartialSurnames(partialNameOrPartialSurnames);
 
         printSearchUsersResult(titol, partialNameOrPartialSurnames, sur);
 
@@ -200,7 +190,7 @@ public class KeyCloakTest {
 
     protected void testGetRolesByUsername(IUserInformationPlugin plugin) throws Exception {
 
-        String[] usrs = new String[] { "fbosch" };        
+        String[] usrs = new String[] { "fbosch" };
         for (String usr : usrs) {
             RolesInfo ri = plugin.getRolesByUsername(usr);
             if (ri == null) {
@@ -222,14 +212,14 @@ public class KeyCloakTest {
     }
 
     protected void testGetUsernamesByRol(IUserInformationPlugin plugin) throws Exception {
-        
+
         //String rol = "IGE_USER";
         //String rol = "DEM_USER";
         String rol = "IGE_ADMIN";
         //String rol = "PFI_ADMIN";
         //String rol = "CAR_SUPER";
         //String rol = "CAR_ADMIN";
-        
+
         String[] users = plugin.getUsernamesByRol(rol);
         System.out.println("Usuaris amb ROL '" + rol + "': " + Arrays.toString(users));
     }
@@ -243,23 +233,27 @@ public class KeyCloakTest {
         if (ui == null) {
             System.err.println(" No es troba l'usuari amb NIF " + nif);
         } else {
-            System.out.println(" Usuari amb NIF " + nif + ": Nom " + ui.getName() + " | Llinatge  "
-                    + ui.getSurname1() + " | nif: " + ui.getAdministrationID());
+            System.out.println(" Usuari amb NIF " + nif + ": Nom " + ui.getName() + " | Llinatge  " + ui.getSurname1()
+                    + " | nif: " + ui.getAdministrationID());
         }
 
         System.out.println(" Ha tardat: " + (System.currentTimeMillis() - start));
     }
 
     protected void testGetUserInfoByUserName(IUserInformationPlugin kcui) throws Exception {
-        String[] usernames = { "anadal", "carpeta", "admin", "jpernia", "desconegut" };
+        String[] usernames = { "xtous", "jamer", "atrobat", "anadal", "jtramullas", "u999000" };//{ , "anadal", "carpeta", "admin", "jpernia", "desconegut" };
         for (int i = 0; i < usernames.length; i++) {
             UserInfo ui = kcui.getUserInfoByUserName(usernames[i]);
 
             if (ui != null) {
-                System.out.println(" - Nom: " + ui.getName() + " | Llinatge  " + ui.getSurname1()
-                        + " | nif: " + ui.getAdministrationID());
+
+                System.out.println("\n==============================================");
+                System.out.println(ui.toFullInfo("\t"));
+
+                //System.out.println(" - Nom: " + ui.getName() + " | Llinatge  " + ui.getSurname1() + " | nif: "
+                //        + ui.getAdministrationID() + " | dir3=" + ui.getDir3() + " | dir3Parent=" + ui.getDir3Parent());
             } else {
-                System.err.println(" EL username [" + usernames[i] + "] no existeix !!!!");
+                System.err.println("L'username [" + usernames[i] + "] no existeix !!!!");
             }
         }
     }
@@ -282,14 +276,13 @@ public class KeyCloakTest {
         IUserInformationPlugin kcui;
 
         // kcui = new KeyCloakUserInformationPlugin(basepackage, prop);
-        kcui = (IUserInformationPlugin) PluginsManager
-                .instancePluginByClass(KeyCloakUserInformationPlugin.class, basepackage, prop);
+        kcui = (IUserInformationPlugin) PluginsManager.instancePluginByClass(KeyCloakUserInformationPlugin.class,
+                basepackage, prop);
         return kcui;
     }
 
-    protected UserInfo toUserInfo(String usernamePartial, String firstNamePartial,
-            String lastNamePartial, String emailPartial, String administrationIDPartial)
-            throws Exception {
+    protected UserInfo toUserInfo(String usernamePartial, String firstNamePartial, String lastNamePartial,
+            String emailPartial, String administrationIDPartial) throws Exception {
         UserInfo ui = new UserInfo();
 
         ui.setUsername(usernamePartial);

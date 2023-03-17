@@ -110,6 +110,13 @@ public class DataBaseUserInformationPlugin extends AbstractUserInformationPlugin
         final Map<Integer, String> whereParams = null;
         return executeCount(where, whereParams);
     }
+    
+
+    @Override
+    public boolean isImplementedUserInfoByAdministrationID() {
+        return true;
+    }
+
 
     @Override
     public UserInfo getUserInfoByAdministrationID(String administrationID) throws Exception {
@@ -524,6 +531,12 @@ public class DataBaseUserInformationPlugin extends AbstractUserInformationPlugin
     // ============= I N F O R M A C I O - D E - R O L S ===============
     // =====================================================================
     // =====================================================================
+    
+
+    @Override
+    public boolean isImplementedRolesQueries() {
+        return true;
+    }
 
     @Override
     public String[] getUsernamesByRol(String rol) throws Exception {
@@ -988,5 +1001,6 @@ public class DataBaseUserInformationPlugin extends AbstractUserInformationPlugin
 
         return new SearchUsersResult(executeQuery(where, whereParams));
     }
+
 
 }

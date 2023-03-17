@@ -3,10 +3,11 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>pluginsib-userinformation-api</artifactId>
 	<name>PluginsIB - UserInformation - API</name>
+    <version>3.1.0</version>
 	<parent>
+        <artifactId>pluginsib-userinformation</artifactId>
 		<groupId>org.fundaciobit.pluginsib.userinformation</groupId>
-		<version>3.0.0</version>
-		<artifactId>pluginsib-userinformation</artifactId>
+		<version>3.1.0</version>
 	</parent>
 	<dependencies>
   </dependencies>

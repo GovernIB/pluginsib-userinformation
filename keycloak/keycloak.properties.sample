@@ -6,47 +6,21 @@ org.fundaciobit.sample.userinformationplugin=org.fundaciobit.pluginsib.userinfor
 # BASE org.fundaciobit.sample
 
 
-# -------------------  CAIB - DEV -------------------
 
 # URL to KeyCloak Server
-org.fundaciobit.sample.pluginsib.userinformation.keycloak.serverurl=https://dev.caib.es/auth/
-#
+org.fundaciobit.sample.pluginsib.userinformation.keycloak.serverurl=http://localhost:18080/auth/
 
 # Nom del Realm
-org.fundaciobit.sample.pluginsib.userinformation.keycloak.realm=webdes
+org.fundaciobit.sample.pluginsib.userinformation.keycloak.realm=GOIB
 
-# Editar el client anterior i anar a la pipella de "Credentials". Pitjar sobre "Regenerate Secret". Copiar el valor de 'Secret' aqu�
-org.fundaciobit.sample.pluginsib.userinformation.keycloak.password_secret=ccccccccccfqterwtrqewrqwerqwer
-
-
-
-# -------------------  ANADAL KEYCLOAK  -------------------
-
-# URL to KeyCloak Server
-#org.fundaciobit.sample.pluginsib.userinformation.keycloak.serverurl=http://localhost:18080/auth/
-
-#http://localhost:18080/auth/
-
-# Nom del Realm
-#org.fundaciobit.sample.pluginsib.userinformation.keycloak.realm=GOIB
-
-# Editar el client anterior i anar a la pipella de "Credentials". Pitjar sobre "Regenerate Secret". Copiar el valor de 'Secret' aqu�
-#org.fundaciobit.sample.pluginsib.userinformation.keycloak.password_secret=f57bae72-3672-4c12-b953-4e26a352d6ae
-
-
-
-# -------------------------------------------------------
+# Editar el client anterior i anar a la pipella de "Credentials". Pitjar sobre "Regenerate Secret". Copiar el valor de 'Secret' aquí
+org.fundaciobit.sample.pluginsib.userinformation.keycloak.password_secret=f57bae72-3672-12-b953-4e26a352d6ae
 
 
 # Client amb Access Type 'confidential'
-# Crear nou client en el realm corresponent. Ha de tenir "Access Type" a  confidential i nom�s ha de tenir marcat "Service Accounts Enabled"
+# Crear nou client en el realm corresponent. Ha de tenir "Access Type" a  confidential i només ha de tenir marcat "Service Accounts Enabled"
 org.fundaciobit.sample.pluginsib.userinformation.keycloak.client_id=goib-ws
-#keycloakuserinformation
-#goib-ws
-#keycloak-admin
 
-
-#8103f9ff-6150-45fe-8d4a-76ad061f204e
 
 # Client configurat per l'autenticació dels usuris
 # Crear un Client amb "Access Type" a  'public' i marcar "Standard Flow Enabled" i "Direct Access Grants Enabled"
@@ -54,11 +28,16 @@ org.fundaciobit.sample.pluginsib.userinformation.keycloak.client_id_for_user_aut
 
 # Mappings. Mapejos entre valors de Attibutes de un usuari i els valors de UserInfo de PluginUserInformation
 # Clau:  username, administrationID, name, surname1, surname2, email, language,
-#        phoneNumber, password,  address, company, website o gender( -1: unknown or undefined, 0 female, 1 male)
+#        phoneNumber, password,  address, company, conpanyDir3, companyArea,companyDepartment,website,
+#        birthDate,creationDate,notes,dir3,dir3Parent, website o gender( -1: unknown or undefined, 0 female, 1 male)
 # Valor:  Atribut definit dins "Attributes" de l'usuari Keycloak
 org.fundaciobit.sample.pluginsib.userinformation.keycloak.mapping.administrationID=nif
 
-#org.fundaciobit.sample.pluginsib.userinformation.keycloak.mapping.company=departmentNumber
+#org.fundaciobit.sample.pluginsib.userinformation.keycloak.mapping.language=locale
+#org.fundaciobit.sample.pluginsib.userinformation.keycloak.mapping.dir3=dir3
+#org.fundaciobit.sample.pluginsib.userinformation.keycloak.mapping.dir3Parent=dir3pare
+#org.fundaciobit.sample.pluginsib.userinformation.keycloak.mapping.companyArea=areaNumber
+#org.fundaciobit.sample.pluginsib.userinformation.keycloak.mapping.companyDepartment=departmentNumber
 #org.fundaciobit.sample.pluginsib.userinformation.keycloak.mapping.surname1=sn1
 #org.fundaciobit.sample.pluginsib.userinformation.keycloak.mapping.surname2=sn2
 
@@ -70,6 +49,13 @@ org.fundaciobit.sample.pluginsib.userinformation.keycloak.debug=true
 # org.fundaciobit.sample.pluginsib.userinformation.keycloak.minimumcharacterstosearch=3
 # org.fundaciobit.sample.pluginsib.userinformation.keycloak.maxallowednumberofresultsinpartialsearches=30
 
+# Només en entorns CAIB. S'utilitzen els valors de DIR3 i DIR3PARENT per 
+# assignar valors a Area (companyArea) i Departament (companyDepartment)
+# IMPORTANT: Si aquesta propietat està definida i dir3 o dir3Parent valen null llavors llançarà un error 
+# IMPORTANT: Si aquesta propietat està definida i companyArea o companyDepartment valen diferent de null
+# llavors llançarà un error
+# El valor d'aquesta propietat ha de ser el DIR3 arrel de l'organització
+# org.fundaciobit.sample.pluginsib.userinformation.keycloak.useDir3InfoToGenerateAreaDepartment=A04003003
 
 	
 

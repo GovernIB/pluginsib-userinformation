@@ -10,13 +10,16 @@ import org.keycloak.representations.idm.UserRepresentation;
 
 import java.util.Set;
 
+/**
+ * 
+ * @author anadal
+ *
+ */
 public class CacheNifUsername {
-    
-    
 
     /** Map de Key Nif i Value Username */
     protected Map<String, String> cacheUsernameByNif = new HashMap<String, String>();
-    
+
     /** Guarda els usernames quan els nifs dels usuaris valen 0 */
     protected Set<String> usernamesWithNullNif = new HashSet<String>();
 
@@ -36,21 +39,20 @@ public class CacheNifUsername {
         }
         return false;
     }
-    
+
     public void setNifCacheComplete() {
         completeNifUsernameDate = System.currentTimeMillis();
     }
-    
+
     public String getUsernameByNif(String administrationID) {
         return cacheUsernameByNif.get(administrationID);
     }
-    
+
     public Set<Entry<String, String>> entrySet() {
-      return cacheUsernameByNif.entrySet();
+        return cacheUsernameByNif.entrySet();
     }
-    
-    public String getNifAttributeAndUpdateCache(final String attributeUserNIF,
-            UserRepresentation ur) {
+
+    public String getNifAttributeAndUpdateCache(final String attributeUserNIF, UserRepresentation ur) {
         if (ur.getAttributes() != null) {
             List<String> values = ur.getAttributes().get(attributeUserNIF);
             if (values != null && values.size() != 0) {

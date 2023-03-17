@@ -19,6 +19,10 @@ public interface IUserInformationPlugin extends IPlugin {
     // ============ I N F O R M A C I Ó - D ' U S U A R I S ===============
     // =====================================================================
     // =====================================================================
+    
+    
+    public boolean isImplementedUserInfoByAdministrationID();
+    
 
     /**
      * Mètode que retorna informació de l'usuari amb nif igual al paràmetre.
@@ -174,6 +178,8 @@ public interface IUserInformationPlugin extends IPlugin {
     // ============= I N F O R M A C I O - D E - R O L S ===============
     // =====================================================================
     // =====================================================================
+    
+    boolean isImplementedRolesQueries();
 
     /**
      * Mètode que retorna els roles associats a l'usuari username per l'aplicatiu

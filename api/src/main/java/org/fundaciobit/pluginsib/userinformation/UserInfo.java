@@ -35,6 +35,8 @@ public class UserInfo {
 
     String phoneNumber;
 
+    String mobileNumber;
+
     Gender gender = Gender.UNKNOWN;
 
     String address;
@@ -52,6 +54,12 @@ public class UserInfo {
     Date creationDate;
 
     String notes;
+
+    String dir3;
+
+    String dir3Parent;
+
+    String dir3Company;
 
     Map<String, String> socialNetworks;
 
@@ -119,6 +127,14 @@ public class UserInfo {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getMobileNumber() {
+        return mobileNumber;
+    }
+
+    public void setMobileNumber(String mobileNumber) {
+        this.mobileNumber = mobileNumber;
     }
 
     public Gender getGender() {
@@ -201,6 +217,30 @@ public class UserInfo {
         this.notes = notes;
     }
 
+    public String getDir3() {
+        return dir3;
+    }
+
+    public void setDir3(String dir3) {
+        this.dir3 = dir3;
+    }
+
+    public String getDir3Parent() {
+        return dir3Parent;
+    }
+
+    public void setDir3Parent(String dir3Parent) {
+        this.dir3Parent = dir3Parent;
+    }
+
+    public String getDir3Company() {
+        return dir3Company;
+    }
+
+    public void setDir3Company(String dir3Company) {
+        this.dir3Company = dir3Company;
+    }
+
     public Map<String, String> getSocialNetworks() {
         return socialNetworks;
     }
@@ -241,6 +281,88 @@ public class UserInfo {
     @Override
     public String toString() {
         return username + " - " + administrationID + " - " + this.getFullName() + " - " + email;
+    }
+
+    public String toFullInfo(String tab) {
+
+        StringBuilder str = new StringBuilder();
+
+        if (id != null) {
+            str.append(tab + "id: " + this.id + "\n");
+        } //id
+        if (username != null) {
+            str.append(tab + "username: " + this.username + "\n");
+        } //username
+        if (administrationID != null) {
+            str.append(tab + "administrationID: " + this.administrationID + "\n");
+        } //administrationID
+        if (name != null) {
+            str.append(tab + "name: " + this.name + "\n");
+        } //name
+        if (surname1 != null) {
+            str.append(tab + "surname1: " + this.surname1 + "\n");
+        } //surname1
+        if (surname2 != null) {
+            str.append(tab + "surname2: " + this.surname2 + "\n");
+        } //surname2
+        if (email != null) {
+            str.append(tab + "email: " + this.email + "\n");
+        } //email
+        if (language != null) {
+            str.append(tab + "language: " + this.language + "\n");
+        } //language
+        if (phoneNumber != null) {
+            str.append(tab + "phoneNumber: " + this.phoneNumber + "\n");
+        } //phoneNumber
+        if (address != null) {
+            str.append(tab + "address: " + this.address + "\n");
+        } //address
+        if (company != null) {
+            str.append(tab + "company: " + this.company + "\n");
+        } //company
+        if (companyArea != null) {
+            str.append(tab + "companyArea: " + this.companyArea + "\n");
+        } //companyArea
+        if (companyDepartment != null) {
+            str.append(tab + "companyDepartment: " + this.companyDepartment + "\n");
+        } //companyDepartment
+        if (website != null) {
+            str.append(tab + "website: " + this.website + "\n");
+        } //website
+        if (notes != null) {
+            str.append(tab + "notes: " + this.notes + "\n");
+        } //notes
+        if (dir3 != null) {
+            str.append(tab + "dir3: " + this.dir3 + "\n");
+        } //dir3
+        if (dir3Parent != null) {
+            str.append(tab + "dir3Parent: " + this.dir3Parent + "\n");
+        } //dir3Parent
+
+        //Gender gender = Gender.UNKNOWN;
+        if (gender != null) {
+            str.append(tab + "gender: " + this.gender + "\n");
+        }
+
+        if (birthDate != null) {
+            str.append(tab + "birthDate: " + this.birthDate + "\n");
+        }
+
+        if (creationDate != null) {
+            str.append(tab + "creationDate: " + this.creationDate + "\n");
+        }
+
+        if (socialNetworks != null && socialNetworks.size() != 0) {
+            str.append(tab + "socialNetworks:\n");
+            socialNetworks.forEach((k, v) -> str.append(tab + tab + "- " + k + " => " + v + "\n"));
+        }
+
+        if (attributes != null && attributes.size() != 0) {
+            str.append(tab + "attributes:\n");
+            attributes.forEach((k, v) -> str.append(tab + tab + "- " + k + " => " + v + "\n"));
+        }
+
+        return str.toString();
     }
 
 }

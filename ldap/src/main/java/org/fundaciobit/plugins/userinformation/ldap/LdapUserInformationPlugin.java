@@ -58,6 +58,13 @@ public class LdapUserInformationPlugin extends AbstractUserInformationPlugin {
         }
         return ldapUserManager;
     }
+    
+    
+
+    @Override
+    public boolean isImplementedRolesQueries() {
+        return true;
+    }
 
     @Override
     public RolesInfo getRolesByUsername(String username) throws Exception {
@@ -71,6 +78,14 @@ public class LdapUserInformationPlugin extends AbstractUserInformationPlugin {
             return new RolesInfo(username, roles.toArray(new String[0]));
         }
     }
+    
+    
+    @Override
+    public boolean isImplementedUserInfoByAdministrationID() {
+        return true;
+    }
+
+    
 
     public UserInfo getUserInfoByAdministrationID(String nif) throws Exception {
         final boolean paramIsNif = true;
@@ -232,5 +247,7 @@ public class LdapUserInformationPlugin extends AbstractUserInformationPlugin {
         // TODO Auto-generated method stub
         return 0;
     }
+
+
 
 }

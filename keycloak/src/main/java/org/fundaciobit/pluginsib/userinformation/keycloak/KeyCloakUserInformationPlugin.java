@@ -46,14 +46,12 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
     private static final String PLUGINSIB_USERINFORMATION_BASE_PROPERTIES = IPLUGINSIB_BASE_PROPERTIES
             + "userinformation.";
 
-    private static final String KEYCLOAK_BASE_PROPERTY = PLUGINSIB_USERINFORMATION_BASE_PROPERTIES
-            + "keycloak.";
+    private static final String KEYCLOAK_BASE_PROPERTY = PLUGINSIB_USERINFORMATION_BASE_PROPERTIES + "keycloak.";
 
     public static final String SERVER_URL_PROPERTY = KEYCLOAK_BASE_PROPERTY + "serverurl";
     public static final String REALM_PROPERTY = KEYCLOAK_BASE_PROPERTY + "realm";
 
-    public static final String PASSWORD_SECRET_PROPERTY = KEYCLOAK_BASE_PROPERTY
-            + "password_secret";
+    public static final String PASSWORD_SECRET_PROPERTY = KEYCLOAK_BASE_PROPERTY + "password_secret";
     public static final String CLIENT_ID_PROPERTY = KEYCLOAK_BASE_PROPERTY + "client_id";
 
     public static final String CLIENT_ID_FOR_USER_AUTHENTICATION_PROPERTY = KEYCLOAK_BASE_PROPERTY
@@ -70,6 +68,9 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
 
     public static final String MAX_ALLOWED_NUMBER_OF_RESULTS_IN_PARTIAL_SEARCHES = KEYCLOAK_BASE_PROPERTY
             + "maxallowednumberofresultsinpartialsearches";
+
+    public static final String USE_DIR3_INFO_TO_GENERATE_AREA_DEPARTMENT_PROPERTY = KEYCLOAK_BASE_PROPERTY
+            + "useDir3InfoToGenerateAreaDepartment";
 
     private CacheNifUsername cache = new CacheNifUsername();
 
@@ -123,8 +124,7 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
                 return Integer.parseInt(minStr);
             }
         } catch (NumberFormatException e) {
-            log.warn("Propietat " + this.getPropertyKeyBase()
-                    + MAX_ALLOWED_NUMBER_OF_RESULTS_IN_PARTIAL_SEARCHES
+            log.warn("Propietat " + this.getPropertyKeyBase() + MAX_ALLOWED_NUMBER_OF_RESULTS_IN_PARTIAL_SEARCHES
                     + " ha de definir un sencer: " + e.getMessage(), e);
         }
         return defaultValue;
@@ -148,29 +148,25 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
     }
 
     protected Keycloak getKeyCloakConnection() throws Exception {
-        Keycloak keycloak = KeycloakBuilder.builder()
-                .serverUrl(getPropertyRequired(SERVER_URL_PROPERTY))
-                .realm(getPropertyRequired(REALM_PROPERTY))
-                .clientId(getPropertyRequired(CLIENT_ID_PROPERTY))
+        Keycloak keycloak = KeycloakBuilder.builder().serverUrl(getPropertyRequired(SERVER_URL_PROPERTY))
+                .realm(getPropertyRequired(REALM_PROPERTY)).clientId(getPropertyRequired(CLIENT_ID_PROPERTY))
                 .clientSecret(getPropertyRequired(PASSWORD_SECRET_PROPERTY))
                 .grantType(OAuth2Constants.CLIENT_CREDENTIALS) // "client_credentials"
-                .resteasyClient(new ResteasyClientBuilder().connectionPoolSize(10)
-                        .register(new CustomJacksonProvider()).build())
+                .resteasyClient(new ResteasyClientBuilder().connectionPoolSize(10).register(new CustomJacksonProvider())
+                        .build())
                 .build();
 
         keycloak.tokenManager().getAccessToken();
         return keycloak;
     }
 
-    protected Keycloak getKeyCloakConnectionUsernamePassword(String username, String password)
-            throws Exception {
-        Keycloak keycloak = KeycloakBuilder.builder()
-                .serverUrl(getPropertyRequired(SERVER_URL_PROPERTY))
+    protected Keycloak getKeyCloakConnectionUsernamePassword(String username, String password) throws Exception {
+        Keycloak keycloak = KeycloakBuilder.builder().serverUrl(getPropertyRequired(SERVER_URL_PROPERTY))
                 .realm(getPropertyRequired(REALM_PROPERTY))
-                .clientId(getPropertyRequired(CLIENT_ID_FOR_USER_AUTHENTICATION_PROPERTY))
-                .password(password).username(username).grantType(OAuth2Constants.PASSWORD) // "password"
-                .resteasyClient(new ResteasyClientBuilder().connectionPoolSize(10)
-                        .register(new CustomJacksonProvider()).build())
+                .clientId(getPropertyRequired(CLIENT_ID_FOR_USER_AUTHENTICATION_PROPERTY)).password(password)
+                .username(username).grantType(OAuth2Constants.PASSWORD) // "password"
+                .resteasyClient(new ResteasyClientBuilder().connectionPoolSize(10).register(new CustomJacksonProvider())
+                        .build())
                 .build();
 
         keycloak.tokenManager().getAccessToken();
@@ -183,11 +179,15 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
         Integer count = usersResource.count();
 
         if (count == null) {
-            throw new Exception(
-                    "La cridada a count() ha retornat un null per causes desconegudes.");
+            throw new Exception("La cridada a count() ha retornat un null per causes desconegudes.");
         }
 
         return count.longValue();
+    }
+
+    @Override
+    public boolean isImplementedUserInfoByAdministrationID() {
+        return true;
     }
 
     @Override
@@ -295,9 +295,8 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
      * Camps de UserInfo que excuim ja que venen amb l'API de keyCloak Excluim
      * "birthDate" i "creationDate" ja que són Dates.
      */
-    protected final HashSet<String> attributesToExclude = new HashSet<String>(
-            Arrays.asList("id", "username", "email", "name", "socialNetworks", "attributes",
-                    "birthDate", "creationDate"));
+    protected final HashSet<String> attributesToExclude = new HashSet<String>(Arrays.asList("id", "username", "email",
+            "name", "socialNetworks", "attributes", "birthDate", "creationDate"));
 
     /**
      * 
@@ -369,16 +368,13 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
 
                 List<String> list = userAttributes.get(attributeUser);
                 if (list == null || list.size() == 0) {
-                    log.warn("L'usuari " + user.getUsername() + " no t'he l'atribut ]"
-                            + attributeUser + "[");
+                    log.warn("L'usuari " + user.getUsername() + " no t'he l'atribut ]" + attributeUser + "[");
                     continue;
                 }
 
                 String attributeUserValue = list.get(0);
-
                 if (debug) {
-                    log.info(
-                            " Posant al camp " + userInfoField + " el valor " + attributeUserValue);
+                    log.info(" Posant al camp " + userInfoField + " el valor " + attributeUserValue);
                 }
 
                 Field field = ui.getClass().getDeclaredField(userInfoField);
@@ -406,12 +402,11 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
                         }
 
                     } catch (Exception e) {
-                        log.error(" Error processant mapping de GENDER (-1, 0 o 1): "
-                                + attributeUserValue);
+                        log.error(" Error processant mapping de GENDER (-1, 0 o 1): " + attributeUserValue);
                     }
 
                 } else {
-                    // CHECK DATES
+                    // TODO XYZ ZZZ FALTA CHECK DE DATES
                     field.set(ui, attributeUserValue);
                 }
 
@@ -420,7 +415,50 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
             }
 
         }
+
+        String dir3Root = getProperty(USE_DIR3_INFO_TO_GENERATE_AREA_DEPARTMENT_PROPERTY);
+
+        if (dir3Root != null && dir3Root.trim().length() != 0) {
+
+            // IMPORTANT: Si aquesta propietat està definida i dir3 o dir3Parent valen null llavors llançarà un error
+            final String dir3 = ui.getDir3();
+            final String dir3Parent = ui.getDir3Parent();
+
+            if (isEmpty(dir3) || isEmpty(dir3Parent)) {
+                throw new Exception("En el Plugin de KeyCloak s'ha definit la propietat " + this.getPropertyKeyBase()
+                        + USE_DIR3_INFO_TO_GENERATE_AREA_DEPARTMENT_PROPERTY
+                        + " cosa que implica que el valors de dir3 i dir3Parent han de valer diferent de null."
+                        + " L'usuari " + ui.getUsername() + " té el valor dir3 a " + dir3 + " i  dir3Parent a "
+                        + dir3Parent);
+            }
+
+            // IMPORTANT: Si aquesta propietat està definida i companyArea o companyDepartment valen diferent de null
+            if (ui.getCompanyArea() != null || ui.getCompanyDepartment() != null) {
+                throw new Exception("En el Plugin de KeyCloak s'ha definit la propietat " + this.getPropertyKeyBase()
+                        + USE_DIR3_INFO_TO_GENERATE_AREA_DEPARTMENT_PROPERTY
+                        + " cosa que implica que el valors de  companyArea o companyDepartment han de valer null."
+                        + " L'usuari " + ui.getUsername() + " té el valor companyArea a " + ui.getCompanyArea()
+                        + " i companyDepartment a " + ui.getCompanyDepartment());
+            }
+
+            ui.setDir3Company(dir3Root);
+
+            if (dir3Root.equals(dir3Parent)) {
+                // Informació d'Area/Conselleria
+                ui.setCompanyArea(dir3 + "_Area");
+                ui.setCompanyDepartment(null);
+            } else {
+                ui.setCompanyArea(dir3Parent + "_Area");
+                ui.setCompanyDepartment(dir3 + "_Department");
+            }
+
+        }
+
         return ui;
+    }
+
+    private boolean isEmpty(String str) {
+        return str == null || str.trim().length() == 0;
     }
 
     @Override
@@ -470,6 +508,11 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
             usuaris.add(ur.getUsername());
         }
         return usuaris.toArray(new String[usuaris.size()]);
+    }
+
+    @Override
+    public boolean isImplementedRolesQueries() {
+        return true;
     }
 
     @Override
@@ -578,8 +621,8 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
     private Set<String> getUsernamesByRolOfClient(String rol, String client) throws Exception {
         Keycloak keycloak = this.getKeyCloakConnection();
 
-        ClientsResource clientsApi = keycloak
-                .realm(getPropertyRequired(KeyCloakUserInformationPlugin.REALM_PROPERTY)).clients();
+        ClientsResource clientsApi = keycloak.realm(getPropertyRequired(KeyCloakUserInformationPlugin.REALM_PROPERTY))
+                .clients();
 
         List<ClientRepresentation> crList;
         crList = clientsApi.findByClientId(client);
@@ -647,8 +690,8 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
             }
 
             if (debug) {
-                log.info("La cerca en la cache de PARTIAL_USERNAME ]" + partialUsername
-                        + "[ ha tardat " + (System.currentTimeMillis() - startT) + "ms");
+                log.info("La cerca en la cache de PARTIAL_USERNAME ]" + partialUsername + "[ ha tardat "
+                        + (System.currentTimeMillis() - startT) + "ms");
             }
 
             // Cercar els usuaris que coincideixen per username
@@ -661,16 +704,14 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
                     UserInfo ui = getUserInfoByUserName(usrname);
                     users.add(ui);
                 } catch (Throwable th) {
-                    log.warn("Error recuperant usuari amb username: " + usrname + ": "
-                            + th.getMessage(), th);
+                    log.warn("Error recuperant usuari amb username: " + usrname + ": " + th.getMessage(), th);
 
                 }
             }
 
             if (debug) {
-                log.info("La recuperació de dades d'usuari en la cerca de PARTIAL_USERNAME ]"
-                        + partialUsername + "[ ha tardat " + (System.currentTimeMillis() - startT)
-                        + "ms");
+                log.info("La recuperació de dades d'usuari en la cerca de PARTIAL_USERNAME ]" + partialUsername
+                        + "[ ha tardat " + (System.currentTimeMillis() - startT) + "ms");
             }
 
             return new SearchUsersResult(users);
@@ -689,8 +730,7 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
 
             // Cerca per username i per email. Hem d'anar excloguent els que no s'ajustin
             // per username
-            while ((users = usersResource.search(partialUsername, start, step,
-                    briefRepresentation)) != null) {
+            while ((users = usersResource.search(partialUsername, start, step, briefRepresentation)) != null) {
 
                 if (users == null || users.size() == 0) {
                     break;
@@ -718,9 +758,8 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
             }
 
             if (debug) {
-                log.info("La cerca de PARTIAL_USERNAME ]" + partialUsername + "[, cercant en "
-                        + total + " usuaris, ha tardat " + (System.currentTimeMillis() - startT)
-                        + "ms");
+                log.info("La cerca de PARTIAL_USERNAME ]" + partialUsername + "[, cercant en " + total
+                        + " usuaris, ha tardat " + (System.currentTimeMillis() - startT) + "ms");
             }
         }
 
@@ -770,8 +809,7 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
 
             // Cerca per username i per email. Hem d'anar excloguent els que no s'ajustin
             // per email
-            while ((users = usersResource.search(partialEmail, start, step,
-                    briefRepresentation)) != null) {
+            while ((users = usersResource.search(partialEmail, start, step, briefRepresentation)) != null) {
 
                 if (users == null || users.size() == 0) {
                     break;
@@ -815,8 +853,7 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
     }
 
     @Override
-    public SearchUsersResult getUsersByPartialNameOrPartialSurnames(String partialNameOrSurname)
-            throws Exception {
+    public SearchUsersResult getUsersByPartialNameOrPartialSurnames(String partialNameOrSurname) throws Exception {
 
         SearchStatus ss = checkMinimumPartialString(partialNameOrSurname, "partialNameOrSurname");
         if (ss != null) {
@@ -830,14 +867,12 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
         Set<UserInfo> users = new TreeSet<UserInfo>(new UserInfoComparator());
 
         // Aquesta és la forma per fer un OR en la cerca a l'API
-        SearchUsersResult sur1 = getUsersByPartialNameAndPartialSurname(users, partialNameOrSurname,
-                null, maxAllowed);
+        SearchUsersResult sur1 = getUsersByPartialNameAndPartialSurname(users, partialNameOrSurname, null, maxAllowed);
         if (sur1 != null) { // null significa OK
             return sur1;
         }
 
-        SearchUsersResult sur2 = getUsersByPartialNameAndPartialSurname(users, null,
-                partialNameOrSurname, maxAllowed);
+        SearchUsersResult sur2 = getUsersByPartialNameAndPartialSurname(users, null, partialNameOrSurname, maxAllowed);
         if (sur2 != null) { // null significa OK
             return sur2;
         }
@@ -855,8 +890,8 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
      * @return
      * @throws Exception
      */
-    protected SearchUsersResult getUsersByPartialNameAndPartialSurname(Set<UserInfo> allUsers,
-            String firstName, String lastName, int maxAllowed) throws Exception {
+    protected SearchUsersResult getUsersByPartialNameAndPartialSurname(Set<UserInfo> allUsers, String firstName,
+            String lastName, int maxAllowed) throws Exception {
 
         final String username = null;
         final String email = null;
@@ -868,8 +903,8 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
         final Boolean briefRepresentation = false;
 
         UsersResource usersResource = getKeyCloakConnectionForUsers();
-        List<UserRepresentation> users = usersResource.search(username, firstName, lastName, email,
-                firstResult, maxResults, briefRepresentation);
+        List<UserRepresentation> users = usersResource.search(username, firstName, lastName, email, firstResult,
+                maxResults, briefRepresentation);
 
         if (users != null && users.size() != 0) {
 
@@ -892,11 +927,9 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
     }
 
     @Override
-    public SearchUsersResult getUsersByPartialAdministrationID(String partialAdministratorID)
-            throws Exception {
+    public SearchUsersResult getUsersByPartialAdministrationID(String partialAdministratorID) throws Exception {
 
-        SearchStatus ss = checkMinimumPartialString(partialAdministratorID,
-                "partialAdministratorID");
+        SearchStatus ss = checkMinimumPartialString(partialAdministratorID, "partialAdministratorID");
         if (ss != null) {
             return new SearchUsersResult(ss);
         }
@@ -926,8 +959,8 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
             }
 
             if (debug) {
-                log.info("La cerca en la cache de PARTIAL_NIF ]" + partialAdministratorID
-                        + "[ ha tardat " + (System.currentTimeMillis() - start) + "ms");
+                log.info("La cerca en la cache de PARTIAL_NIF ]" + partialAdministratorID + "[ ha tardat "
+                        + (System.currentTimeMillis() - start) + "ms");
             }
 
             // Cercar els usuaris que coincideixen per username
@@ -940,16 +973,14 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
                     UserInfo ui = getUserInfoByUserName(usrname);
                     users.add(ui);
                 } catch (Throwable th) {
-                    log.warn("Error recuperant usuari amb username: " + usrname + ": "
-                            + th.getMessage(), th);
+                    log.warn("Error recuperant usuari amb username: " + usrname + ": " + th.getMessage(), th);
 
                 }
             }
 
             if (debug) {
-                log.info("La recuperació de dades d'usuari en la cerca de PARTIAL_NIF ]"
-                        + partialAdministratorID + "[ ha tardat "
-                        + (System.currentTimeMillis() - start) + "ms");
+                log.info("La recuperació de dades d'usuari en la cerca de PARTIAL_NIF ]" + partialAdministratorID
+                        + "[ ha tardat " + (System.currentTimeMillis() - start) + "ms");
             }
 
             return new SearchUsersResult(users);
@@ -989,8 +1020,8 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
                 if (attributeUserNIF == null || attributeUserNIF.trim().length() == 0) {
 
                     String msg = "La cerca empant Administration ID no és posible,"
-                            + " ja que no s'ha definit cap propietat mapping emprant la clau "
-                            + getPropertyKeyBase() + MAPPING_PROPERTY + "administrationID";
+                            + " ja que no s'ha definit cap propietat mapping emprant la clau " + getPropertyKeyBase()
+                            + MAPPING_PROPERTY + "administrationID";
                     log.error(msg);
                     SearchStatus error = new SearchStatus(SearchStatus.RESULT_CLIENT_ERROR, msg);
                     return new SearchUsersResult(error);
@@ -1027,9 +1058,9 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
             }
 
             if (debug) {
-                log.info("La recuperació de dades d'usuari en la cerca de PARTIAL_NIF ]"
-                        + partialAdministratorID + "[,\n cercant sobre " + total + " usuaris,"
-                        + " ha tardat " + (System.currentTimeMillis() - startT) + "ms");
+                log.info("La recuperació de dades d'usuari en la cerca de PARTIAL_NIF ]" + partialAdministratorID
+                        + "[,\n cercant sobre " + total + " usuaris," + " ha tardat "
+                        + (System.currentTimeMillis() - startT) + "ms");
             }
 
             return new SearchUsersResult(usersInfo);
@@ -1057,9 +1088,8 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
      * @throws Exception
      */
     @Override
-    public SearchUsersResult getUsersByPartialValuesAnd(String usernamePartial,
-            String firstNamePartial, String lastNamePartial, String emailPartial,
-            String administrationIDPartial) throws Exception {
+    public SearchUsersResult getUsersByPartialValuesAnd(String usernamePartial, String firstNamePartial,
+            String lastNamePartial, String emailPartial, String administrationIDPartial) throws Exception {
 
         long startT = System.currentTimeMillis();
 
@@ -1067,8 +1097,8 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
         // Aquesta ha de superar el mínim permés
         final String[] values = { usernamePartial, firstNamePartial, lastNamePartial, emailPartial,
                 administrationIDPartial };
-        final String[] field = { "usernamePartial", "firstNamePartial", "lastNamePartial",
-                "emailPartial", "administrationIDPartial" };
+        final String[] field = { "usernamePartial", "firstNamePartial", "lastNamePartial", "emailPartial",
+                "administrationIDPartial" };
         float suma = 0;
         float count = 0;
         String camps = "";
@@ -1101,8 +1131,7 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
 
         // Si els valors username, nom, llinatge i email són null, llavors només cercam
         // per Nif
-        if (empty(usernamePartial) && empty(firstNamePartial) && empty(lastNamePartial)
-                && empty(emailPartial)) {
+        if (empty(usernamePartial) && empty(firstNamePartial) && empty(lastNamePartial) && empty(emailPartial)) {
             return getUsersByPartialAdministrationID(administrationIDPartial);
         }
 
@@ -1120,8 +1149,8 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
         final boolean debug = isDebug();
 
         UsersResource usersResource = getKeyCloakConnectionForUsers();
-        List<UserRepresentation> users = usersResource.search(usernamePartial, firstNamePartial,
-                lastNamePartial, emailPartial, firstResult, maxResults, briefRepresentation);
+        List<UserRepresentation> users = usersResource.search(usernamePartial, firstNamePartial, lastNamePartial,
+                emailPartial, firstResult, maxResults, briefRepresentation);
 
         // Massa resultats ????
         if (users.size() > maxAllowed) {
@@ -1161,9 +1190,8 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
         }
 
         if (debug) {
-            log.info("La recuperació de dades d'usuari en la cerca de PARTIAL_VALUES_AND ]"
-                    + usernamePartial + "[, ha tardat " + (System.currentTimeMillis() - startT)
-                    + "ms");
+            log.info("La recuperació de dades d'usuari en la cerca de PARTIAL_VALUES_AND ]" + usernamePartial
+                    + "[, ha tardat " + (System.currentTimeMillis() - startT) + "ms");
         }
 
         return new SearchUsersResult(usersInfo);
@@ -1190,9 +1218,8 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
      * @throws Exception
      */
     @Override
-    public SearchUsersResult getUsersByPartialValuesOr(String usernamePartial,
-            String firstNamePartial, String lastNamePartial, String emailPartial,
-            String administrationIDPartial) throws Exception {
+    public SearchUsersResult getUsersByPartialValuesOr(String usernamePartial, String firstNamePartial,
+            String lastNamePartial, String emailPartial, String administrationIDPartial) throws Exception {
 
         // Cercam la cadena de cerca dins username o email
         final int maxAllowed = getMaxAllowedNumberOfResults();
@@ -1224,8 +1251,8 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
 
         // ========= NAME (firsname)
         if (!empty(firstNamePartial)) {
-            SearchUsersResult sur1 = getUsersByPartialNameAndPartialSurname(usersThatMatch,
-                    firstNamePartial, null, maxAllowed);
+            SearchUsersResult sur1 = getUsersByPartialNameAndPartialSurname(usersThatMatch, firstNamePartial, null,
+                    maxAllowed);
             if (sur1 != null) { // null significa OK
                 return sur1;
             }
@@ -1233,8 +1260,8 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
 
         // =========== SURNAME (lastname)
         if (!empty(lastNamePartial)) {
-            SearchUsersResult sur2 = getUsersByPartialNameAndPartialSurname(usersThatMatch, null,
-                    lastNamePartial, maxAllowed);
+            SearchUsersResult sur2 = getUsersByPartialNameAndPartialSurname(usersThatMatch, null, lastNamePartial,
+                    maxAllowed);
             if (sur2 != null) { // null significa OK
                 return sur2;
             }
