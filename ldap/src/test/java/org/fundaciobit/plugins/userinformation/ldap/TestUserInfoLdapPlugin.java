@@ -35,11 +35,17 @@ public class TestUserInfoLdapPlugin {
       LdapUserInformationPlugin ldap = new LdapUserInformationPlugin("es.caib.example.", ldapProperties);
       
       UserInfo userInfo = ldap.getUserInfoByUserName(username);
-      if (userInfo != null) {
-        System.out.println( " ------- getUserInfoByUserName ------- ");
+      System.out.println( " ------- getUserInfoByUserName ------- ");
+      if (userInfo == null) {
+          
+          System.err.println("No s'ha trobat l'usuari |" + username + "|");
+          return;
+      } else {
+        
         System.out.println(userInfo.toString());
-        System.out.println();
+        
       }
+      System.out.println();
       
       
       UserInfo ui = ldap.getUserInfoByAdministrationID(userInfo.getAdministrationID());
@@ -84,12 +90,14 @@ public class TestUserInfoLdapPlugin {
       System.out.println();
       System.out.println(" ------------------ ALL USERNAMES (" + all.length + ")");
       for (int i = 0; i < all.length ; i++) {
-        System.out.println((i++) + ".- " + all[i]);
-        if (i > 10) {
+        System.out.println((i+1) + ".- " + all[i]);
+        if (i > 50) {
           System.out.println("...");
           break;
         }
       }
+      System.out.flush();
+      Thread.sleep(250);
 
       // ========= Altres mètodes ========
 
@@ -109,14 +117,20 @@ public class TestUserInfoLdapPlugin {
 
       // 3.2.- Obtenir usuari per NIF
       String nif = u.getAdministrationID();
-      u = ldap.getUserInfoByAdministrationID(nif);
-      System.out.println();
-      System.out.println(" ------------------ getUserInfoByAdministrationID -----------");
-      System.out.println("    - Info usuari [ nif ="  + nif + "]: ");
-      System.out.println("          + Nom: " + u.getName() + " " + u.getSurname1() + " " + u.getSurname2());
-      System.out.println("          + Nom Complet : " + u.getFullName());
-      System.out.println("          + NIF: " + u.getAdministrationID());
-      System.out.println("          + Email: " + u.getEmail());
+      if (nif != null) {
+          u = ldap.getUserInfoByAdministrationID(nif);
+          System.out.println();
+          System.out.println(" ------------------ getUserInfoByAdministrationID -----------");
+          if (u == null) {
+              System.out.println("  No es troba l'usuari " + username + " per nif " + nif);
+          } else {
+              System.out.println("    - Info usuari [ nif ="  + nif + "]: ");
+              System.out.println("          + Nom: " + u.getName() + " " + u.getSurname1() + " " + u.getSurname2());
+              System.out.println("          + Nom Complet : " + u.getFullName());
+              System.out.println("          + NIF: " + u.getAdministrationID());
+              System.out.println("          + Email: " + u.getEmail());
+          }
+      }
        
 
     } catch (Exception e) {

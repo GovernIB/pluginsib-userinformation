@@ -36,28 +36,26 @@ public class KeyCloakTest {
             long start = System.currentTimeMillis();
             System.out.println("All usernames:" + plugin.getAllUsernames().length);
             System.out.println((System.currentTimeMillis() - start) + " ms");
-            /*
+
             // XYZ ZZZ falta test EMAIL
-            
-            tester.testSearchByPartialMultipleValuesOr(plugin);
-            
-            tester.testSearchByPartialMultipleValuesAnd(plugin);
-            
-            tester.testSearchByPartialAdministrationID(plugin);
-            
-            tester.testSearchByPartialUsername(plugin);
-            
-            tester.testGetUsersByPartialNameOrPartialSurnames(plugin);
-            
-            
-            */
-            tester.testGetUserInfoByUserName(plugin);
+
+            //tester.testSearchByPartialMultipleValuesOr(plugin);
+
+            //tester.testSearchByPartialMultipleValuesAnd(plugin);
+
+            //tester.testSearchByPartialAdministrationID(plugin);
+
+            //tester.testSearchByPartialUsername(plugin);
+
+            //tester.testGetUsersByPartialNameOrPartialSurnames(plugin);
+
+            //tester.testGetUserInfoByUserName(plugin);
 
             //tester.testGetUserInfoByAdminID(plugin);
 
             //tester.testGetRolesByUsername(plugin);
 
-            //tester.testGetUsernamesByRol(plugin);
+            tester.testGetUsernamesByRol(plugin);
 
             //tester.testAuthenticate(plugin);
 
@@ -215,10 +213,11 @@ public class KeyCloakTest {
 
         //String rol = "IGE_USER";
         //String rol = "DEM_USER";
-        String rol = "IGE_ADMIN";
-        //String rol = "PFI_ADMIN";
+        //String rol = "IGE_ADMIN";
+        String rol = "PFI_ADMIN";
         //String rol = "CAR_SUPER";
         //String rol = "CAR_ADMIN";
+        //String rol = "XXX_ADMIN";
 
         String[] users = plugin.getUsernamesByRol(rol);
         System.out.println("Usuaris amb ROL '" + rol + "': " + Arrays.toString(users));

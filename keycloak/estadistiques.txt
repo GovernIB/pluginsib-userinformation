@@ -1,0 +1,26 @@
+
+===========================
+======      DEV     =======
+===========================
+
+TEST 1:
+
+--- SENSE CACHE
+La recuperació de dades d'usuari en la cerca de PARTIAL_NIF ]430[, cercant sobre 137 usuaris, ha tardat 1760ms
+
+
+--- AMB CACHE
+ La cerca en la cache de PARTIAL_NIF ]4308[ ha tardat 0ms
+ La recuperació de dades d'usuari en la cerca de PARTIAL_NIF ]4308[ ha tardat 112ms
+ TROBATS 1 AMB NIF PARCIAL
+ 
+
+TEST 2:
+
+--- SENSE CACHE 
+ La recuperació de dades d'usuari en la cerca de PARTIAL_NIF ]4308[, cercant sobre 137 usuaris, ha tardat 1731ms
+
+--- AMB CACHE
+ La cerca en la cache de PARTIAL_NIF ]430[ ha tardat 0ms
+ La recuperació de dades d'usuari en la cerca de PARTIAL_NIF ]430[ ha tardat 212ms
+ TROBATS 2 AMB NIF PARCIAL

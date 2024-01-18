@@ -17,3 +17,6 @@ nb-configuration.xml
 /keycloakcaib/.gitignore
 /keycloakcaib/.project
 /keycloak-custom-api-for-plugin
+/ldap/connection.properties
+/ldap/connection_caib.properties
+/keycloak/LDAP_FEDERAT_FUNDACIO_BIT.odt
