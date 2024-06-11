@@ -1,4 +1,4 @@
-package org.fundaciobit.plugins.userinformation.database;
+package org.fundaciobit.pluginsib.userinformation.database;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,8 +17,8 @@ import org.fundaciobit.pluginsib.userinformation.RolesInfo;
 import org.fundaciobit.pluginsib.userinformation.SearchStatus;
 import org.fundaciobit.pluginsib.userinformation.SearchUsersResult;
 import org.fundaciobit.pluginsib.userinformation.UserInfo;
-import org.apache.log4j.Logger;
-import org.fundaciobit.pluginsib.core.utils.PluginsManager;
+import org.jboss.logging.Logger;
+import org.fundaciobit.pluginsib.core.v3.utils.PluginsManager;
 
 /**
  * 
@@ -46,8 +46,7 @@ public class TestUserInfoDatabasePlugin {
             File f = new File("test.properties");
 
             if (!f.exists()) {
-                throw new Exception(
-                        "You must define test.properties. Copy from test.properties.sample");
+                throw new Exception("You must define test.properties. Copy from test.properties.sample");
             }
 
             Properties testProperties = new Properties();
@@ -62,11 +61,10 @@ public class TestUserInfoDatabasePlugin {
 
             // Passam pro
             IUserInformationPlugin databasePlugin;
-            databasePlugin = (IUserInformationPlugin) PluginsManager.instancePluginByClass(
-                    DataBaseUserInformationPlugin.class, keybase, databaseProperties);
+            databasePlugin = (IUserInformationPlugin) PluginsManager
+                    .instancePluginByClass(DataBaseUserInformationPlugin.class, keybase, databaseProperties);
 
-            TestUserInfoDatabasePlugin tester = new TestUserInfoDatabasePlugin(testProperties,
-                    databasePlugin);
+            TestUserInfoDatabasePlugin tester = new TestUserInfoDatabasePlugin(testProperties, databasePlugin);
 
             List<UserInfo> users = tester.testGetUserInfoByUsername();
 
@@ -145,8 +143,7 @@ public class TestUserInfoDatabasePlugin {
             } while (true);
 
         } else {
-            log.warn(
-                    "L'autenticació emprant username-password està deshabilitada per aquest plugin.");
+            log.warn("L'autenticació emprant username-password està deshabilitada per aquest plugin.");
         }
 
     }
@@ -176,8 +173,7 @@ public class TestUserInfoDatabasePlugin {
             } else {
                 String[] rols = rolesInfo.getRoles();
 
-                log.error(" * L'usuari (" + ui.getUsername() + ") té els rols: "
-                        + Arrays.toString(rols));
+                log.error(" * L'usuari (" + ui.getUsername() + ") té els rols: " + Arrays.toString(rols));
 
                 for (String r : rols) {
                     roles.add(r);
@@ -224,8 +220,8 @@ public class TestUserInfoDatabasePlugin {
 
                 UserInfo ui2 = plugin.getUserInfoByAdministrationID(ui.getAdministrationID());
                 if (ui2 == null) {
-                    String msg = "La cerca per NIF no troba l'usuari amb Username "
-                            + ui.getUsername() + " i NIF " + ui.getAdministrationID();
+                    String msg = "La cerca per NIF no troba l'usuari amb Username " + ui.getUsername() + " i NIF "
+                            + ui.getAdministrationID();
                     throw new Exception(msg);
                 } else {
                     log.info(ui.toString());
@@ -253,8 +249,7 @@ public class TestUserInfoDatabasePlugin {
 
         final String titol = " ========= CERCA AMB EMAIL PARCIAL ";
 
-        final String[] partialEmails = this.testerProperties.getProperty("partial.email")
-                .split(",");
+        final String[] partialEmails = this.testerProperties.getProperty("partial.email").split(",");
 
         for (String partialUsername : partialEmails) {
             log.info("-------------------------------------");
@@ -269,8 +264,8 @@ public class TestUserInfoDatabasePlugin {
 
         final String titol = " ========= CERCA AMB NOM/LLINATGE PARCIAL ";
 
-        final String[] partialNameOrPartialSurnames = this.testerProperties
-                .getProperty("partial.namesurname").split(",");
+        final String[] partialNameOrPartialSurnames = this.testerProperties.getProperty("partial.namesurname")
+                .split(",");
 
         for (String p : partialNameOrPartialSurnames) {
             SearchUsersResult sur = plugin.getUsersByPartialNameOrPartialSurnames(p);
@@ -284,8 +279,7 @@ public class TestUserInfoDatabasePlugin {
 
         final String titol = " ========= CERCA AMB USERNAME PARCIAL ";
 
-        final String[] partialUsernames = this.testerProperties.getProperty("partial.username")
-                .split(",");
+        final String[] partialUsernames = this.testerProperties.getProperty("partial.username").split(",");
 
         for (String partialUsername : partialUsernames) {
             log.info("-------------------------------------");
@@ -326,32 +320,28 @@ public class TestUserInfoDatabasePlugin {
         partialValues.put("NIF {430}", toUserInfo(null, null, null, null, "430"));
         partialValues.put("User {an} & NIF '430'", toUserInfo("an", null, null, null, "430"));
         partialValues.put("Email {dgtic}", toUserInfo(null, null, null, "dgtic", null));
-        partialValues.put("Email {l@fundaciobit}",
-                toUserInfo(null, null, null, "l@fundaciobit", null));
-        partialValues.put("Llinatge {er} & Email {dgtic}",
-                toUserInfo(null, null, "er", "dgtic", null));
+        partialValues.put("Email {l@fundaciobit}", toUserInfo(null, null, null, "l@fundaciobit", null));
+        partialValues.put("Llinatge {er} & Email {dgtic}", toUserInfo(null, null, "er", "dgtic", null));
 
-        final String titol = " ========= CERCA AMB MULTIPLES VALORS[" + (isAnd ? "AND" : "OR")
-                + "]: ";
+        final String titol = " ========= CERCA AMB MULTIPLES VALORS[" + (isAnd ? "AND" : "OR") + "]: ";
 
         for (Entry<String, UserInfo> entry : partialValues.entrySet()) {
             log.info("");
             UserInfo ui = entry.getValue();
             SearchUsersResult sur;
             if (isAnd) {
-                sur = plugin.getUsersByPartialValuesAnd(ui.getUsername(), ui.getName(),
-                        ui.getSurname1(), ui.getEmail(), ui.getAdministrationID());
+                sur = plugin.getUsersByPartialValuesAnd(ui.getUsername(), ui.getName(), ui.getSurname1(), ui.getEmail(),
+                        ui.getAdministrationID());
             } else {
-                sur = plugin.getUsersByPartialValuesOr(ui.getUsername(), ui.getName(),
-                        ui.getSurname1(), ui.getEmail(), ui.getAdministrationID());
+                sur = plugin.getUsersByPartialValuesOr(ui.getUsername(), ui.getName(), ui.getSurname1(), ui.getEmail(),
+                        ui.getAdministrationID());
             }
             printSearchUsersResult(titol, entry.getKey(), sur);
             log.info("");
         }
     }
 
-    protected void printSearchUsersResult(final String titol, String textCerca,
-            SearchUsersResult sur) {
+    protected void printSearchUsersResult(final String titol, String textCerca, SearchUsersResult sur) {
 
         final String base = titol + "'" + textCerca + "' => ";
 
@@ -366,17 +356,15 @@ public class TestUserInfoDatabasePlugin {
             } else {
                 log.info(base + " USUARIS TROBATS " + users.size());
                 for (UserInfo userInfo : users) {
-                    log.info("      - " + userInfo.getAdministrationID() + "\t"
-                            + userInfo.getUsername() + "\t" + userInfo.getEmail() + "\t"
-                            + userInfo.getFullName());
+                    log.info("      - " + userInfo.getAdministrationID() + "\t" + userInfo.getUsername() + "\t"
+                            + userInfo.getEmail() + "\t" + userInfo.getFullName());
                 }
             }
         }
     }
 
-    protected UserInfo toUserInfo(String usernamePartial, String firstNamePartial,
-            String lastNamePartial, String emailPartial, String administrationIDPartial)
-            throws Exception {
+    protected UserInfo toUserInfo(String usernamePartial, String firstNamePartial, String lastNamePartial,
+            String emailPartial, String administrationIDPartial) throws Exception {
         UserInfo ui = new UserInfo();
 
         ui.setUsername(usernamePartial);

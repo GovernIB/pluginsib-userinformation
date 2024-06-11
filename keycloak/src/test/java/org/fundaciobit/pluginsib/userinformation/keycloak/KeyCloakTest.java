@@ -9,13 +9,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
-import org.fundaciobit.pluginsib.core.utils.PluginsManager;
+import org.fundaciobit.pluginsib.core.v3.utils.PluginsManager;
 import org.fundaciobit.pluginsib.userinformation.IUserInformationPlugin;
 import org.fundaciobit.pluginsib.userinformation.RolesInfo;
 import org.fundaciobit.pluginsib.userinformation.SearchStatus;
 import org.fundaciobit.pluginsib.userinformation.SearchUsersResult;
 import org.fundaciobit.pluginsib.userinformation.UserInfo;
+import org.jboss.logging.Logger;
 
 /**
  * Unit test for simple App.

@@ -6,16 +6,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
-import org.fundaciobit.pluginsib.core.utils.AbstractPluginProperties;
+import org.fundaciobit.pluginsib.core.v3.utils.AbstractPluginProperties;
+import org.jboss.logging.Logger;
 
 /**
  * 
  * @author anadal
  *
  */
-public abstract class AbstractUserInformationPlugin extends AbstractPluginProperties
-        implements IUserInformationPlugin {
+public abstract class AbstractUserInformationPlugin extends AbstractPluginProperties implements IUserInformationPlugin {
 
     protected final Logger log = Logger.getLogger(getClass());
 
@@ -58,8 +57,7 @@ public abstract class AbstractUserInformationPlugin extends AbstractPluginProper
         final int minimumCharachtersToSearch = getMinimumCharactersToSearch();
 
         if (partialText.length() < minimumCharachtersToSearch) {
-            return errorCadenaDeCercaMassaCurta(partialText.length(), minimumCharachtersToSearch,
-                    field);
+            return errorCadenaDeCercaMassaCurta(partialText.length(), minimumCharachtersToSearch, field);
         }
 
         return null;
@@ -80,8 +78,8 @@ public abstract class AbstractUserInformationPlugin extends AbstractPluginProper
     }
 
     protected SearchStatus errorMassaResultats(final int maxAllowed) {
-        return new SearchStatus(SearchStatus.RESULT_TOO_MANY_RESULTS_MATCH, "Massa resultats ("
-                + maxAllowed + ") coincideixen amb el patró de cerca. Ajusti la cadena de cerca.");
+        return new SearchStatus(SearchStatus.RESULT_TOO_MANY_RESULTS_MATCH,
+                "Massa resultats (" + maxAllowed + ") coincideixen amb el patró de cerca. Ajusti la cadena de cerca.");
     }
 
     protected SearchStatus errorCadenaDeCercaNullBuida(String searchString) {
@@ -95,8 +93,8 @@ public abstract class AbstractUserInformationPlugin extends AbstractPluginProper
             final int minimumCharachtersToSearch, final String field) {
         SearchStatus ss = new SearchStatus(SearchStatus.RESULT_PARTIAL_STRING_TOO_SHORT,
                 "Per iniciar la consulta es requereix un texte parcial de cerca amb una longitud mínima de "
-                        + minimumCharachtersToSearch + " caràcters, però només s'han enviat "
-                        + (int) searchStringLen + " caràcters per cerca al camp '" + field + "'");
+                        + minimumCharachtersToSearch + " caràcters, però només s'han enviat " + (int) searchStringLen
+                        + " caràcters per cerca al camp '" + field + "'");
         return ss;
     }
 

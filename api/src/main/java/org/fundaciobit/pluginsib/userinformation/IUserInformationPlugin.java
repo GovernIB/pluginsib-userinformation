@@ -2,27 +2,24 @@ package org.fundaciobit.pluginsib.userinformation;
 
 import java.security.cert.X509Certificate;
 
-import org.fundaciobit.pluginsib.core.IPlugin;
+import org.fundaciobit.pluginsib.core.v3.IPluginIB;
 
 /**
  * 
  * @author anadal
  * 
  */
-public interface IUserInformationPlugin extends IPlugin {
+public interface IUserInformationPlugin extends IPluginIB {
 
-    public static final String USERINFORMATION_BASE_PROPERTY = IPLUGINSIB_BASE_PROPERTIES
-            + "userinformation.";
+    public static final String USERINFORMATION_BASE_PROPERTY = IPLUGINSIB_BASE_PROPERTIES + "userinformation.";
 
     // =====================================================================
     // =====================================================================
     // ============ I N F O R M A C I Ó - D ' U S U A R I S ===============
     // =====================================================================
     // =====================================================================
-    
-    
+
     public boolean isImplementedUserInfoByAdministrationID();
-    
 
     /**
      * Mètode que retorna informació de l'usuari amb nif igual al paràmetre.
@@ -70,13 +67,11 @@ public interface IUserInformationPlugin extends IPlugin {
 
     public SearchUsersResult getUsersByPartialUserName(String partialUsername) throws Exception;
 
-    public SearchUsersResult getUsersByPartialNameOrPartialSurnames(String partialNameOrSurname)
-            throws Exception;
+    public SearchUsersResult getUsersByPartialNameOrPartialSurnames(String partialNameOrSurname) throws Exception;
 
     public SearchUsersResult getUsersByPartialEmail(String partialEmail) throws Exception;
 
-    public SearchUsersResult getUsersByPartialAdministrationID(String partialAdministratorID)
-            throws Exception;
+    public SearchUsersResult getUsersByPartialAdministrationID(String partialAdministratorID) throws Exception;
 
     /**
      * 
@@ -103,8 +98,7 @@ public interface IUserInformationPlugin extends IPlugin {
      */
 
     SearchUsersResult getUsersByPartialValuesAnd(String usernamePartial, String firstNamePartial,
-            String lastNamePartial, String emailPartial, String administrationIDPartial)
-            throws Exception;
+            String lastNamePartial, String emailPartial, String administrationIDPartial) throws Exception;
 
     /**
      * 
@@ -129,9 +123,8 @@ public interface IUserInformationPlugin extends IPlugin {
      * @return
      * @throws Exception
      */
-    public SearchUsersResult getUsersByPartialValuesOr(String usernamePartial,
-            String firstNamePartial, String lastNamePartial, String emailPartial,
-            String administrationIDPartial) throws Exception;
+    public SearchUsersResult getUsersByPartialValuesOr(String usernamePartial, String firstNamePartial,
+            String lastNamePartial, String emailPartial, String administrationIDPartial) throws Exception;
 
     // =====================================================================
     // =====================================================================
@@ -178,7 +171,7 @@ public interface IUserInformationPlugin extends IPlugin {
     // ============= I N F O R M A C I O - D E - R O L S ===============
     // =====================================================================
     // =====================================================================
-    
+
     boolean isImplementedRolesQueries();
 
     /**
