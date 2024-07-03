@@ -477,15 +477,11 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
 
         UsersResource usersResource = getKeyCloakConnectionForUsers();
 
-        List<UserRepresentation> users = usersResource.search(username);
-
-        // users.get(0).get
-
-        if (users == null || users.size() == 0) {
+        UserInfo user = this.getUserInfoByUserName(username);
+        
+        if (user == null) {
             return null;
         }
-
-        UserRepresentation user = users.get(0);
 
         MappingsRepresentation mr = usersResource.get(user.getId()).roles().getAll();
         Set<String> roles = new TreeSet<String>();
