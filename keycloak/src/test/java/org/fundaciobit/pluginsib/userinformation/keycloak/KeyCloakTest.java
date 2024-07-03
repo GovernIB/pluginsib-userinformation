@@ -53,9 +53,9 @@ public class KeyCloakTest {
 
             //tester.testGetUserInfoByAdminID(plugin);
 
-            //tester.testGetRolesByUsername(plugin);
+            tester.testGetRolesByUsername(plugin);
 
-            tester.testGetUsernamesByRol(plugin);
+            //tester.testGetUsernamesByRol(plugin);
 
             //tester.testAuthenticate(plugin);
 
@@ -188,7 +188,7 @@ public class KeyCloakTest {
 
     protected void testGetRolesByUsername(IUserInformationPlugin plugin) throws Exception {
 
-        String[] usrs = new String[] { "fbosch" };
+        String[] usrs = new String[] { "am" };
         for (String usr : usrs) {
             RolesInfo ri = plugin.getRolesByUsername(usr);
             if (ri == null) {
