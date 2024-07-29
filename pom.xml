@@ -1,30 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.fundaciobit.pluginsib.userinformation</groupId>
-	<version>4.0.0-SNAPSHOT</version>
-	<artifactId>pluginsib-userinformation</artifactId>
-	<packaging>pom</packaging>
-	
-	    <parent>
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.fundaciobit.pluginsib.userinformation</groupId>
+    <artifactId>pluginsib-userinformation</artifactId>
+    <version>4.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <parent>
         <artifactId>
             caib-artifacts-github-governib-distribution-with-jdk11-jboss72</artifactId>
         <groupId>es.caib.maven</groupId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-	
-	<name>PluginsIB - UserInformation</name>
 
-	<modules>
-		<module>api</module>
-		<module>ldap</module>
-		<module>database</module>
-		<module>keycloak</module>
-	</modules>
-	
-	
+    <name>PluginsIB - UserInformation</name>
+
+    <modules>
+        <module>api</module>
+        <module>ldap</module>
+        <module>database</module>
+        <module>keycloak</module>
+    </modules>
+
     <developers>
         <developer>
             <id>anadal-fundaciobit</id>
@@ -44,14 +43,14 @@
                 https://joinup.ec.europa.eu/sites/default/files/custom-page/attachment/eupl_v1.2_es.pdf</url>
         </license>
     </licenses>
-	
+
     <dependencies>
         <dependency>
             <groupId>org.fundaciobit.pluginsib.core.v3</groupId>
             <artifactId>pluginsib-core</artifactId>
             <version>3.0.0-SNAPSHOT</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.fundaciobit.pluginsib.core.v3</groupId>
             <artifactId>pluginsib-core</artifactId>
@@ -59,15 +58,15 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-        
-    </dependencies>	
 
-	<repositories>
-		<repository>
-			<id>github-governib-maven-repos</id>
-			<name>GitHub GovernIB Maven Repository</name>
-			<url>http://GovernIB.github.io/maven/maven/</url>
-		</repository>
-	</repositories>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>github-governib-maven-repos</id>
+            <name>GitHub GovernIB Maven Repository</name>
+            <url>https://governib.github.io/maven/maven/</url>
+        </repository>
+    </repositories>
 
 </project>

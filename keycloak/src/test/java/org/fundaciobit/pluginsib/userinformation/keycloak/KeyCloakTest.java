@@ -49,11 +49,11 @@ public class KeyCloakTest {
 
             //tester.testGetUsersByPartialNameOrPartialSurnames(plugin);
 
-            //tester.testGetUserInfoByUserName(plugin);
+            tester.testGetUserInfoByUserName(plugin);
 
             //tester.testGetUserInfoByAdminID(plugin);
 
-            tester.testGetRolesByUsername(plugin);
+            //tester.testGetRolesByUsername(plugin);
 
             //tester.testGetUsernamesByRol(plugin);
 
