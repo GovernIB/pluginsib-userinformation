@@ -39,8 +39,7 @@
     <licenses>
         <license>
             <name>European Union Public Licence (EUPL v1.2)</name>
-            <url>
-                https://joinup.ec.europa.eu/sites/default/files/custom-page/attachment/eupl_v1.2_es.pdf</url>
+            <url>https://joinup.ec.europa.eu/sites/default/files/custom-page/attachment/eupl_v1.2_es.pdf</url>
         </license>
     </licenses>
 
@@ -58,7 +57,6 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <repositories>
