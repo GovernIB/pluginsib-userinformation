@@ -44,10 +44,12 @@
             <artifactId>resteasy-jackson2-provider</artifactId>
         </dependency>
 
-        <dependency>
+        <dependency><!--
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>1.2</version>
+            <version>1.2</version>-->
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>commons-logging-jboss-logging</artifactId>
         </dependency>
 
     </dependencies>
