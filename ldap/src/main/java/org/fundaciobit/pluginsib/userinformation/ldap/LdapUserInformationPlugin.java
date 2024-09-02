@@ -154,8 +154,18 @@ public class LdapUserInformationPlugin extends AbstractUserInformationPlugin {
     @Override
     public String[] getUsernamesByRol(String rol) throws Exception {
         LDAPUserManager ldapManager = getLDAPUserManager();
-        List<String> allUsernames = ldapManager.getAllUserNames();
 
+        List<LDAPUser> users = ldapManager.getUsersByRol(rol);
+        List<String> usernames = new ArrayList<String>();
+        for (LDAPUser u : users) {
+            usernames.add(u.getUserName());
+        }
+
+        return usernames.toArray(new String[usernames.size()]);
+
+        /*
+        List<String> allUsernames = ldapManager.getAllUserNames();
+        
         List<String> usernames = new ArrayList<String>();
         for (String un : allUsernames) {
             List<String> roles = ldapManager.getRolesOfUser(un);
@@ -164,6 +174,7 @@ public class LdapUserInformationPlugin extends AbstractUserInformationPlugin {
             }
         }
         return usernames.toArray(new String[0]);
+        */
     }
 
     @Override

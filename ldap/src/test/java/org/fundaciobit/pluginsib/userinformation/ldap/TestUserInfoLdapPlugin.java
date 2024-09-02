@@ -6,13 +6,20 @@ import java.util.Arrays;
 import java.util.Properties;
 
 import org.fundaciobit.pluginsib.userinformation.UserInfo;
+import org.junit.Test;
 
 /**
  * 
  * @author anadal
  *
  */
+
 public class TestUserInfoLdapPlugin {
+
+    @Test
+    public void testLdapJUnit() {
+        main(null);
+    }
 
     public static void main(String[] args) {
         try {
@@ -26,7 +33,7 @@ public class TestUserInfoLdapPlugin {
             username = ldapProperties.getProperty("test.username");
             password = ldapProperties.getProperty("test.password");
 
-            System.out.println("username: " + username);
+            System.out.println("Cercant username '" + username + "' ...");
 
             // Si no es defineix res llavors obté la configuració de les Propietats de Sistema
             LdapUserInformationPlugin ldap = new LdapUserInformationPlugin("es.caib.example.", ldapProperties);
@@ -34,7 +41,6 @@ public class TestUserInfoLdapPlugin {
             UserInfo userInfo = ldap.getUserInfoByUserName(username);
             System.out.println(" ------- getUserInfoByUserName ------- ");
             if (userInfo == null) {
-
                 System.err.println("No s'ha trobat l'usuari |" + username + "|");
                 return;
             } else {
@@ -52,9 +58,22 @@ public class TestUserInfoLdapPlugin {
                 System.out.println();
             }
 
+            {
+                System.out.println("======= Cridant a getUsernamesByRol ...");
+                String[] roles = new String[] { "PFI_ADMIN", "PFI_USER" };
+
+                for (int i = 0; i < roles.length; i++) {
+                    System.out.println();
+                    System.out.println(" ------- Users with role " + roles[i] + " ------- ");
+                    String[] users = ldap.getUsernamesByRol(roles[i]);
+                    System.out.println(Arrays.toString(users));
+                }
+            }
+
+            System.out.println("======= Cridant a getRolesByUsername");
             org.fundaciobit.pluginsib.userinformation.RolesInfo rolesInfo = ldap.getRolesByUsername(username);
             if (rolesInfo != null) {
-                System.out.println(" ------- rolesInfo(" + username + ") ------- ");
+                System.out.println(" ------- getRolesByUsername(" + username + ") ------- ");
                 String[] roles = rolesInfo.getRoles();
 
                 for (String rol : roles) {
@@ -63,35 +82,12 @@ public class TestUserInfoLdapPlugin {
                 System.out.println();
             }
 
-            String[] roles = new String[] { "PFI_ADMIN", "PFI_USER" };
-
-            for (int i = 0; i < roles.length; i++) {
-                System.out.println();
-                System.out.println(" ------- Users with role " + roles[i] + ") ------- ");
-                String[] users = ldap.getUsernamesByRol(roles[i]);
-                System.out.println(Arrays.toString(users));
-            }
-
             // 1.- Mètode per autenticar amb usuari contrasenya
             System.out.println();
             System.out.println("------------- Authenticate: " + ldap.authenticate(username, password));
             System.out.println();
             System.out.println("------------- Authenticate amb contrasenya erronia: "
                     + ldap.authenticate(username, password + "22"));
-
-            // 2.- LLista de Tots els Usuaris
-            String[] all = ldap.getAllUsernames();
-            System.out.println();
-            System.out.println(" ------------------ ALL USERNAMES (" + all.length + ")");
-            for (int i = 0; i < all.length; i++) {
-                System.out.println((i + 1) + ".- " + all[i]);
-                if (i > 50) {
-                    System.out.println("...");
-                    break;
-                }
-            }
-            System.out.flush();
-            Thread.sleep(250);
 
             // ========= Altres mètodes ========
 
@@ -124,6 +120,24 @@ public class TestUserInfoLdapPlugin {
                     System.out.println("          + Email: " + u.getEmail());
                 }
             }
+
+            // METODE GET ALL USERNAMES es el més critic ja que dóna un "error code 4 - Sizelimit Exceeded"
+
+            // 1.- LLista de Tots els Usuaris
+
+            System.out.println();
+            System.out.println(" ------------------ ALL USERNAMES -----------");
+            String[] all = ldap.getAllUsernames();
+            System.out.println(" returnaed: " + all.length);
+            for (int i = 0; i < all.length; i++) {
+                System.out.println((i + 1) + ".- " + all[i]);
+                if (i > 50) {
+                    System.out.println("...");
+                    break;
+                }
+            }
+            System.out.flush();
+            Thread.sleep(250);
 
         } catch (Exception e) {
             // TODO Auto-generated catch block
