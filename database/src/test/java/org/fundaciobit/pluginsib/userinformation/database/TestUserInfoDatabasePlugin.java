@@ -73,7 +73,9 @@ public class TestUserInfoDatabasePlugin {
             Set<String> rols = tester.testGetRolesByUsername(users);
 
             tester.testGetUsernamesByRol(rols);
-
+            
+            tester.testGetUserInfoByRol(rols);
+/*
             tester.testAutenticateByUsernamePassword();
 
             tester.testGetAllUsernames();
@@ -91,6 +93,7 @@ public class TestUserInfoDatabasePlugin {
             tester.testSearchByPartialMultipleValuesAnd();
 
             tester.testSearchByPartialMultipleValuesOr();
+            */
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -156,6 +159,26 @@ public class TestUserInfoDatabasePlugin {
 
             String[] users = plugin.getUsernamesByRol(r);
             log.info(" ------- Users with role " + r + ": " + Arrays.toString(users));
+        }
+    }
+    
+    
+    public void testGetUserInfoByRol(Set<String> rols) throws Exception {
+
+        log.info("\n\n============ testGetUserInfoByRol ===============");
+
+        for (String r : rols) {
+
+            UserInfo[] users = plugin.getUserInfoByRol(r);
+            log.info(" ------- UsersINFO with role " + r + ": " );
+            
+            StringBuilder sb = new StringBuilder();
+            for (UserInfo ui : users) {
+               sb.append(ui.getUsername()).append("(").append(ui.getAdministrationID()).append("), ");
+            }
+            
+            log.info(sb.toString());
+            
         }
     }
 

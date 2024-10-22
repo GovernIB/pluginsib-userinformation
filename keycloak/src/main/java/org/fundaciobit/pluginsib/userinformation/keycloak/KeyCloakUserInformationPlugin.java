@@ -521,7 +521,7 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
         UsersResource usersResource = getKeyCloakConnectionForUsers();
 
         UserInfo user = this.getUserInfoByUserName(username);
-        
+
         if (user == null) {
             return null;
         }
@@ -552,23 +552,48 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
     }
 
     @Override
+    public UserInfo[] getUserInfoByRol(String rol) throws Exception {
+        Set<UserRepresentation> userRep = getUserRepresentationByRol(rol);
+
+        Set<UserInfo> users = new HashSet<UserInfo>();
+        for (UserRepresentation ur : userRep) {
+            users.add(userRepresentationToUserInfo(ur));
+        }
+
+        return users.toArray(new UserInfo[users.size()]);
+
+    }
+
+    @Override
     public String[] getUsernamesByRol(String rol) throws Exception {
 
+        Set<UserRepresentation> userRep = getUserRepresentationByRol(rol);
+
+        Set<String> users = new TreeSet<String>();
+        for (UserRepresentation ur : userRep) {
+            users.add(ur.getUsername());
+        }
+
+        return users.toArray(new String[users.size()]);
+
+    }
+
+    protected Set<UserRepresentation> getUserRepresentationByRol(String rol) throws Exception {
         // Usuaris del rol 'rol' del "client" (o resource")
 
         String appClient = getPropertyRequired(CLIENT_ID_PROPERTY);
-        Set<String> usernamesClientApp = getUsernamesByRolOfClient(rol, appClient);
+        Set<UserRepresentation> usernamesClientApp = getUsernamesByRolOfClient(rol, appClient);
 
         String personsClient = getPropertyRequired(CLIENT_ID_FOR_USER_AUTHENTICATION_PROPERTY);
-        Set<String> usernamesClientPersons = getUsernamesByRolOfClient(rol, personsClient);
+        Set<UserRepresentation> usernamesClientPersons = getUsernamesByRolOfClient(rol, personsClient);
 
-        Set<String> usersRealm = getUsernamesByRolOfRealm(rol);
+        Set<UserRepresentation> usersRealm = getUsernamesByRolOfRealm(rol);
 
         if (usernamesClientApp == null && usernamesClientPersons == null && usersRealm == null) {
             return null;
         } else {
 
-            Set<String> users = new TreeSet<String>();
+            Set<UserRepresentation> users = new HashSet<UserRepresentation>();
 
             if (usernamesClientApp != null) {
                 users.addAll(usernamesClientApp);
@@ -583,25 +608,20 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
                 users.addAll(usersRealm);
             }
 
-            return users.toArray(new String[users.size()]);
+            return users;
 
         }
 
     }
 
-    private Set<String> getUsernamesByRolOfRealm(String rol) throws Exception {
+    private Set<UserRepresentation> getUsernamesByRolOfRealm(String rol) throws Exception {
         RolesResource roleres = getKeyCloakConnectionForRoles();
 
         try {
 
             Set<UserRepresentation> userRep = roleres.get(rol).getRoleUserMembers();
 
-            Set<String> users = new HashSet<String>();
-            for (UserRepresentation ur : userRep) {
-                users.add(ur.getUsername());
-            }
-
-            return users;
+            return userRep;
 
         } catch (javax.ws.rs.NotFoundException e) {
             return null;
@@ -614,7 +634,7 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
      * @return
      * @throws Exception
      */
-    private Set<String> getUsernamesByRolOfClient(String rol, String client) throws Exception {
+    private Set<UserRepresentation> getUsernamesByRolOfClient(String rol, String client) throws Exception {
         Keycloak keycloak = this.getKeyCloakConnection();
 
         ClientsResource clientsApi = keycloak.realm(getPropertyRequired(KeyCloakUserInformationPlugin.REALM_PROPERTY))
@@ -632,16 +652,12 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
         RolesResource rrs = c.roles();
 
         try {
-            Set<String> users = new HashSet<String>();
+
             RoleResource rr = rrs.get(rol);
 
             Set<UserRepresentation> userRep = rr.getRoleUserMembers();
 
-            for (UserRepresentation ur : userRep) {
-                users.add(ur.getUsername());
-            }
-
-            return users;
+            return userRep;
 
         } catch (javax.ws.rs.NotFoundException e) {
             return null;

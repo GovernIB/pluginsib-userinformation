@@ -522,6 +522,44 @@ public class DataBaseUserInformationPlugin extends AbstractUserInformationPlugin
     }
 
     @Override
+    public UserInfo[] getUserInfoByRol(String rol) throws Exception {
+
+        String[] usernames = getUsernamesByRol(rol);
+
+        if (usernames == null) {
+            return null;
+        }
+        if (usernames.length == 0) {
+            return new UserInfo[] {};
+        }
+
+        String usernamecolumn = getPropertyRequired(USERS_USERNAME_COLUMN);
+
+        String where = usernamecolumn + " in (";
+        Map<Integer, String> whereParams = new HashMap<Integer, String>();
+        int posParam = 1;
+
+        for (int i = 0; i < usernames.length; i++) {
+            if (i == 0) {
+                where = where + "?";
+            } else {
+                where = where + ", ?";
+            }
+            whereParams.put(posParam, usernames[i]);
+            posParam++;
+        }
+        where = where + ")";
+
+        List<UserInfo> list = executeQuery(where, whereParams);
+
+        if (list == null) {
+            return null;
+        } else {
+            return list.toArray(new UserInfo[list.size()]);
+        }
+    }
+
+    @Override
     public String[] getUsernamesByRol(String rol) throws Exception {
 
         if (rol == null) {

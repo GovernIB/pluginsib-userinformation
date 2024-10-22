@@ -30,3 +30,11 @@ es.caib.example.plugins.userinformation.ldap.attribute.telephone=telephoneNumber
 es.caib.example.plugins.userinformation.ldap.attribute.memberof=memberOf
 es.caib.example.plugins.userinformation.ldap.prefix_role_match_memberof=CN=@
 es.caib.example.plugins.userinformation.ldap.suffix_role_match_memberof=,CN=Users,DC=ibitnet,DC=lan
+
+# Altres propietats
+es.caib.example.pluginsib.userinformation.ldap.defaultlanguage=ca
+
+# Mail Expression Language. Opcional. Sobreescriu el valor del camp de email 
+# de l'usuari, per l'Expressions Language aquí definida.
+# Parametres "userInfo => classe org.fundaciobit.pluginsib.userinformation.UserInfo
+es.caib.example.pluginsib.userinformation.ldap.mailEL=${userInfo.username}@myserver.org

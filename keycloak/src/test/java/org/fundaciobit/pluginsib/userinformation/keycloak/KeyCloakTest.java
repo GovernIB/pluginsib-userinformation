@@ -49,13 +49,15 @@ public class KeyCloakTest {
 
             //tester.testGetUsersByPartialNameOrPartialSurnames(plugin);
 
-            tester.testGetUserInfoByUserName(plugin);
+            //tester.testGetUserInfoByUserName(plugin);
 
             //tester.testGetUserInfoByAdminID(plugin);
 
             //tester.testGetRolesByUsername(plugin);
 
-            //tester.testGetUsernamesByRol(plugin);
+            tester.testGetUsernamesByRol(plugin);
+
+            tester.testGetUserInfoByRol(plugin);
 
             //tester.testAuthenticate(plugin);
 
@@ -221,6 +223,24 @@ public class KeyCloakTest {
 
         String[] users = plugin.getUsernamesByRol(rol);
         System.out.println("Usuaris amb ROL '" + rol + "': " + Arrays.toString(users));
+    }
+
+    protected void testGetUserInfoByRol(IUserInformationPlugin plugin) throws Exception {
+
+        //String rol = "IGE_USER";
+        //String rol = "DEM_USER";
+        //String rol = "IGE_ADMIN";
+        String rol = "PFI_ADMIN";
+        //String rol = "CAR_SUPER";
+        //String rol = "CAR_ADMIN";
+        //String rol = "XXX_ADMIN";
+
+        UserInfo[] users = plugin.getUserInfoByRol(rol);
+        System.out.print("Usuaris amb ROL '" + rol + "': ");
+        for (UserInfo userInfo : users) {
+            System.out.print(userInfo.getUsername() + "(" + userInfo.getAdministrationID() + ") , ");
+        }
+        System.out.println();
     }
 
     protected void testGetUserInfoByAdminID(IUserInformationPlugin plugin) throws Exception {

@@ -39,6 +39,20 @@ public abstract class AbstractUserInformationPlugin extends AbstractPluginProper
     public AbstractUserInformationPlugin(String propertyKeyBase, Properties properties) {
         super(propertyKeyBase, properties);
     }
+    
+    
+    
+    @Override
+    public UserInfo[] getUserInfoByRol(String rol) throws Exception {
+        String[] usernames = this.getUsernamesByRol(rol);
+        UserInfo[] userInfos = new UserInfo[usernames.length];
+        for (int i = 0; i < usernames.length; i++) {
+            userInfos[i] = this.getUserInfoByUserName(usernames[i]);
+        }
+        return userInfos;
+    }
+    
+    
 
     // =========================================================
     // =========================================================

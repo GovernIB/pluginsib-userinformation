@@ -183,11 +183,21 @@ public interface IUserInformationPlugin extends IPluginIB {
     RolesInfo getRolesByUsername(String username) throws Exception;
 
     /**
-     * Retorna els usernames dels usuris que tenen rol <param>rol</param>
+     * Retorna els usernames dels usuaris que tenen rol <param>rol</param>
      * 
      * @return Una llista, buida o no, dels usuaris que tenen aquest rol.
      * @throws Exception Si aquesta operació no esta disponible
      */
     String[] getUsernamesByRol(String rol) throws Exception;
+    
+    
+    /**
+     * Retorna Informació dels usuaris que tenen rol <param>rol</param>
+     * 
+     * @return Una llista, buida o no, dels usuaris que tenen aquest rol.
+     * @throws Exception Si aquesta operació no esta disponible
+     */
+    UserInfo[] getUserInfoByRol(String rol) throws Exception;
+
 
 }

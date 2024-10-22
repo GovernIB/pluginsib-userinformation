@@ -1,8 +1,11 @@
 package org.fundaciobit.pluginsib.userinformation.ldap;
 
+import java.io.IOException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.fundaciobit.pluginsib.userinformation.AbstractUserInformationPlugin;
@@ -13,6 +16,7 @@ import org.fundaciobit.pluginsib.core.v3.utils.CertificateUtils;
 import org.fundaciobit.pluginsib.utils.ldap.LDAPConstants;
 import org.fundaciobit.pluginsib.utils.ldap.LDAPUser;
 import org.fundaciobit.pluginsib.utils.ldap.LDAPUserManager;
+import org.fundaciobit.pluginsib.utils.templateengine.TemplateEngine;
 
 /**
  * Implementació del plugin de informació d'usuari amb LDAP.
@@ -24,7 +28,7 @@ import org.fundaciobit.pluginsib.utils.ldap.LDAPUserManager;
  */
 public class LdapUserInformationPlugin extends AbstractUserInformationPlugin {
 
-    public static final String LDAP_BASE_PROPERTIES = USERINFORMATION_BASE_PROPERTY;
+    public static final String LDAP_BASE_PROPERTIES = USERINFORMATION_BASE_PROPERTY + "ldap.";
 
     private LDAPUserManager ldapUserManager = null;
 
@@ -46,9 +50,9 @@ public class LdapUserInformationPlugin extends AbstractUserInformationPlugin {
 
             Properties ldapProperties = new Properties();
             for (String attrib : LDAPConstants.LDAP_PROPERTIES) {
-                String value = getProperty(LDAP_BASE_PROPERTIES + attrib);
+                String value = getProperty(USERINFORMATION_BASE_PROPERTY + attrib);
                 if (value == null) {
-                    System.err.println("Property[" + LDAP_BASE_PROPERTIES + attrib + " is NULL");
+                    System.err.println("Property[" + USERINFORMATION_BASE_PROPERTY + attrib + " is NULL");
                 } else {
                     ldapProperties.setProperty(attrib, value);
                 }
@@ -101,12 +105,19 @@ public class LdapUserInformationPlugin extends AbstractUserInformationPlugin {
             ldapUser = ldapManager.getUserByUsername(param);
         }
 
+        UserInfo info = ldapUserToUserInfo(ldapUser);
+        return info;
+    }
+
+    private UserInfo ldapUserToUserInfo(LDAPUser ldapUser) throws IOException {
         if (ldapUser == null) {
             return null;
         }
 
         UserInfo info = new UserInfo();
-        info.setLanguage("ca");
+        
+        
+        
         info.setName(ldapUser.getName());
         if (ldapUser.getSurname1() == null) {
             info.setSurname1(ldapUser.getSurnames());
@@ -118,8 +129,32 @@ public class LdapUserInformationPlugin extends AbstractUserInformationPlugin {
         info.setAdministrationID(ldapUser.getAdministrationID());
         info.setUsername(ldapUser.getUserName());
         info.setEmail(ldapUser.getEmail());
+        
+        info.setCompanyDepartment(ldapUser.getDepartment());
+        
         info.setPhoneNumber(ldapUser.getTelephoneNumber());
-
+        
+        
+        // https://github.com/GovernIB/pluginsib-userinformation/issues/16
+        
+        // (1) Default language
+        {
+            String defLang = getProperty(LDAP_BASE_PROPERTIES + "defaultlanguage");
+            if (defLang == null || defLang.trim().length() == 0) {
+                defLang = "ca";
+            }
+            info.setLanguage(defLang);
+        }
+        
+        // (2) Mail Expression Language
+        {
+            String mailEL = getProperty(LDAP_BASE_PROPERTIES + "mailEL");
+            if (mailEL != null && mailEL.trim().length() != 0) {
+                Map<String,Object> parameters = new HashMap<String, Object>();
+                parameters.put("userInfo", info);
+                info.setEmail(TemplateEngine.processExpressionLanguage(mailEL, parameters));
+            }
+        }
         return info;
     }
 
@@ -176,6 +211,22 @@ public class LdapUserInformationPlugin extends AbstractUserInformationPlugin {
         return usernames.toArray(new String[0]);
         */
     }
+    
+    
+    @Override
+    public UserInfo[] getUserInfoByRol(String rol) throws Exception {
+        LDAPUserManager ldapManager = getLDAPUserManager();
+        List<LDAPUser> users = ldapManager.getUsersByRol(rol);
+        UserInfo[] userInfos = new UserInfo[users.size()];
+        int count = 0;
+        for (LDAPUser u : users) {            
+            userInfos[count] = this.ldapUserToUserInfo(u);
+            count++;
+        }
+        return userInfos;
+    }
+    
+    
 
     @Override
     public long countAllUsers() throws Exception {

@@ -20,3 +20,6 @@ nb-configuration.xml
 /ldap/connection.properties
 /ldap/connection_caib.properties
 /keycloak/LDAP_FEDERAT_FUNDACIO_BIT.odt
+/database/plugin.properties
+/database/test.properties
+/ldap/connection.fbit.properties
