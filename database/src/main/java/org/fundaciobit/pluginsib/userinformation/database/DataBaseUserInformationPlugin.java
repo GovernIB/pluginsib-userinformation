@@ -50,6 +50,8 @@ public class DataBaseUserInformationPlugin extends AbstractUserInformationPlugin
 
     private static final String USERS_PASSWORD_COLUMN = DB_BASE_PROPERTIES + "password_column";
 
+    private static final String USERS_DEPARTMENT_COLUMN = DB_BASE_PROPERTIES + "companyDepartment_column";
+
     private static final String USERS_EMAIL_COLUMN = DB_BASE_PROPERTIES + "email_column";
 
     private static final String USERS_NAME_COLUMN = DB_BASE_PROPERTIES + "name_column";
@@ -598,6 +600,39 @@ public class DataBaseUserInformationPlugin extends AbstractUserInformationPlugin
         }
         return usuaris.toArray(new String[usuaris.size()]);
 
+    }
+
+    @Override
+    public boolean isImplementedUsersByDepartment() {
+        return true;
+    }
+
+    /**
+     * 
+     * @param department
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public SearchUsersResult getUsersByDepartment(String department) throws Exception {
+
+        if (department == null || department.trim().length() == 0) {
+            return new SearchUsersResult(new SearchStatus(SearchStatus.RESULT_PARTIAL_STRING_NULL_OR_EMPTY));
+        }
+
+        String departmentColumn = getProperty(USERS_DEPARTMENT_COLUMN);
+        if (departmentColumn == null || departmentColumn.trim().length() == 0) {
+            return new SearchUsersResult(new SearchStatus(SearchStatus.RESULT_CLIENT_ERROR,
+                    "La propietat " + USERS_DEPARTMENT_COLUMN + " no està definida en la llista de propietats"));
+        }
+
+        String where = departmentColumn + "=?";
+        Map<Integer, String> whereParams = new HashMap<Integer, String>();
+        whereParams.put(1, department);
+
+        List<UserInfo> list = executeQuery(where, whereParams);
+
+        return new SearchUsersResult(list);
     }
 
     @Override

@@ -52,5 +52,24 @@ public class SearchStatus {
     public void setResultMessage(String resultMessage) {
         this.resultMessage = resultMessage;
     }
+    
+    public static String toString(SearchStatus ss) {
+        switch (ss.resultCode) {
+            case RESULT_OK:
+                return "OK";
+            case RESULT_CLIENT_ERROR:
+                return "Client error" + (ss.getResultMessage()!= null ? ": " + ss.getResultMessage() : "");
+            case RESULT_SERVER_ERROR:
+                return "Server error" + (ss.getResultMessage()!= null ? ": " + ss.getResultMessage() : "");
+            case RESULT_PARTIAL_STRING_NULL_OR_EMPTY:
+                return "Partial string null or empty";
+            case RESULT_PARTIAL_STRING_TOO_SHORT:
+                return "Partial string too short";
+            case RESULT_TOO_MANY_RESULTS_MATCH:
+                return "Too many results match" + (ss.getResultMessage()!= null ? ": " + ss.getResultMessage() : "");
+            default:
+                return "Unknown error code[" + ss.resultCode + "]: " + (ss.getResultMessage()!= null ? ": " + ss.getResultMessage() : "");
+        }
+    }
 
 }

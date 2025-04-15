@@ -39,9 +39,7 @@ public abstract class AbstractUserInformationPlugin extends AbstractPluginProper
     public AbstractUserInformationPlugin(String propertyKeyBase, Properties properties) {
         super(propertyKeyBase, properties);
     }
-    
-    
-    
+
     @Override
     public UserInfo[] getUserInfoByRol(String rol) throws Exception {
         String[] usernames = this.getUsernamesByRol(rol);
@@ -51,8 +49,22 @@ public abstract class AbstractUserInformationPlugin extends AbstractPluginProper
         }
         return userInfos;
     }
-    
-    
+
+    @Override
+    public boolean isImplementedUsersByDepartment() {
+        return false;
+    }
+
+    /**
+     * 
+     * @param department
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public SearchUsersResult getUsersByDepartment(String department) throws Exception {
+        throw new Exception("El plugin no implementa el mètode getUsersByDepartment(String department)");
+    }
 
     // =========================================================
     // =========================================================

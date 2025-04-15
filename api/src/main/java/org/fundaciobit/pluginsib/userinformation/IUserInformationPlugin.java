@@ -58,6 +58,20 @@ public interface IUserInformationPlugin extends IPluginIB {
      * @throws Exception
      */
     long countAllUsers() throws Exception;
+    
+    /**
+     * 
+     * @return treu si el plugin implementa el mètode getUsersByDepartment
+     */
+    public boolean isImplementedUsersByDepartment();
+    
+    /**
+     * 
+     * @param department
+     * @return
+     * @throws Exception
+     */
+    public SearchUsersResult getUsersByDepartment(String department) throws Exception;
 
     // =====================================================================
     // =====================================================================
