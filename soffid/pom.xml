@@ -1,0 +1,59 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>pluginsib-userinformation-soffid</artifactId>
+    <packaging>jar</packaging>
+    <name>PluginsIB - UserInformation - Soffid</name>
+    <parent>
+        <groupId>org.fundaciobit.pluginsib.userinformation</groupId>
+        <version>4.0.0-SNAPSHOT</version>
+        <artifactId>pluginsib-userinformation</artifactId>
+    </parent>
+    <properties>
+        <keycloak.version>8.0.1</keycloak.version> <!-- 8.0.1 -->
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.fundaciobit.pluginsib.userinformation</groupId>
+            <artifactId>pluginsib-userinformation-api</artifactId>
+            <version>4.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-multipart-provider</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-jaxrs</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>commons-logging-jboss-logging</artifactId>
+        </dependency>
+
+        <dependency>
+            <artifactId>scim2-sdk-common</artifactId>
+            <groupId>com.unboundid.product.scim2</groupId>
+            <version>3.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-jackson2-provider</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.25</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+</project>

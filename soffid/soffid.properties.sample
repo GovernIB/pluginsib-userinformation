@@ -1,0 +1,33 @@
+	
+    
+# Class Plugin 
+org.fundaciobit.sample.userinformationplugin=org.fundaciobit.pluginsib.userinformation.soffid.SoffidUserInformationPlugin
+
+# BASE org.fundaciobit.sample
+
+
+# -------------------  CAIB  -------------------
+
+# URL to Soffid Server
+org.fundaciobit.sample.pluginsib.userinformation.soffid.serverurl=https://intranet.caib.es/soffid/webservice/scim2/v1
+
+org.fundaciobit.sample.pluginsib.userinformation.soffid.username=username
+org.fundaciobit.sample.pluginsib.userinformation.soffid.password=password
+
+# PRO: "weblogic"
+# PRE: "weblogic-pre"
+# SE: "weblogic-pre"
+# DES: "web-des"
+org.fundaciobit.sample.pluginsib.userinformation.soffid.entorn=web-des
+
+# Per depuració
+org.fundaciobit.sample.pluginsib.userinformation.soffid.debug=true
+
+# Cerques Parcials
+
+#Valor per defecte 3
+# org.fundaciobit.sample.pluginsib.userinformation.soffid.minimumcharacterstosearch=3
+
+# Valor per defecte 100.
+# org.fundaciobit.sample.pluginsib.userinformation.soffid.maxallowednumberofresultsinpartialsearches=100
+	

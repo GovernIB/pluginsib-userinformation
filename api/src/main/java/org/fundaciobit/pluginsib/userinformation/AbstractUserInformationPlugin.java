@@ -103,9 +103,17 @@ public abstract class AbstractUserInformationPlugin extends AbstractPluginProper
         return new SearchStatus(SearchStatus.RESULT_CLIENT_ERROR, msg);
     }
 
+    @Deprecated
     protected SearchStatus errorMassaResultats(final int maxAllowed) {
         return new SearchStatus(SearchStatus.RESULT_TOO_MANY_RESULTS_MATCH,
-                "Massa resultats (" + maxAllowed + ") coincideixen amb el patró de cerca. Ajusti la cadena de cerca.");
+                "Massa resultats coincideixen amb el patró de cerca. Ajusti la cadena de cerca. "
+                        + "Màxim resultats permesos: " + maxAllowed + ".");
+    }
+
+    protected SearchStatus errorMassaResultats(final int maxAllowed, final int totalResults) {
+        return new SearchStatus(SearchStatus.RESULT_TOO_MANY_RESULTS_MATCH,
+                "Massa resultats (" + totalResults + ") coincideixen amb el patró de cerca. Ajusti la cadena de cerca."
+                        + " Màxim resultats permesos: " + maxAllowed + ".");
     }
 
     protected SearchStatus errorCadenaDeCercaNullBuida(String searchString) {

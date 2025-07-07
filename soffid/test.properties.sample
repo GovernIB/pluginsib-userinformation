@@ -1,0 +1,17 @@
+
+#pericàs, arriaga
+searchbypartialsurname=miranz,prima
+
+#
+dni=66666666K
+A
+
+# usuari Especial que no existeix: "nonexistentusername"
+usernames=u6666666,nonexistentusername
+
+#rol=PFI_ADMIN
+rol=PFI_USER
+
+
+auth.username=u666666
+auth.password=holacaracola

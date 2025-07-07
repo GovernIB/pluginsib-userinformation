@@ -43,10 +43,7 @@ import org.keycloak.representations.idm.UserRepresentation;
  */
 public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin {
 
-    private static final String PLUGINSIB_USERINFORMATION_BASE_PROPERTIES = IPLUGINSIB_BASE_PROPERTIES
-            + "userinformation.";
-
-    private static final String KEYCLOAK_BASE_PROPERTY = PLUGINSIB_USERINFORMATION_BASE_PROPERTIES + "keycloak.";
+    private static final String KEYCLOAK_BASE_PROPERTY = USERINFORMATION_BASE_PROPERTY + "keycloak.";
 
     public static final String SERVER_URL_PROPERTY = KEYCLOAK_BASE_PROPERTY + "serverurl";
     public static final String REALM_PROPERTY = KEYCLOAK_BASE_PROPERTY + "realm";

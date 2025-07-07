@@ -23,3 +23,7 @@ nb-configuration.xml
 /database/plugin.properties
 /database/test.properties
 /ldap/connection.fbit.properties
+/soffid/doc
+/soffid/soffid.properties
+/soffid/test.properties
+/ldap/connection.pro_caib.properties
