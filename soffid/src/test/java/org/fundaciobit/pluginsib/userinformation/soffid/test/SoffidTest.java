@@ -41,42 +41,67 @@ public class SoffidTest {
 
             long start = System.currentTimeMillis();
 
+            tester.testErrorInRestQuery();
+
+            
             tester.testErrorRestAuthentication();
-
+            
+                        
+            tester.testGetUserInfoByAdminID();
+            
+            tester.testGetUserInfoByUserName();
+            
             tester.testSearchByPartialMultipleValuesOr();
-
+            
             tester.testSearchByPartialMultipleValuesAnd();
-
+            
             tester.testSearchByPartialEmail();
-
+            
             tester.testGetUsersByPartialNameOrPartialSurnames();
-
+            
             tester.testSearchByPartialAdministrationID();
-
+            
             tester.testSearchByPartialUsername();
-
+            
             tester.testGetRolesByUsername();
-
+            
             tester.testGetUsernamesByRol();
-
+            
             tester.testGetUserInfoByRol();
-
+            
             System.out.println("Count usernames:" + tester.getInstance().countAllUsers());
-
+            
+            // NO EXECUTAR Massa Consum
             //System.out.println("All usernames:" + tester.getInstance().getAllUsernames().length);
 
-            tester.testGetUserInfoByAdminID();
-
-            tester.testGetUserInfoByUserName();
-
             tester.testAuthenticate();
-
+            
             System.out.println((System.currentTimeMillis() - start) + " ms");
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+    }
+
+    public void testErrorInRestQuery() throws Exception {
+
+        IUserInformationPlugin plugin = this.getInstance();
+        String usr = "12345677D\"&sortBy=lastName2&sortOrder=nicapamunt&hola=\"sdfasdf";
+        try {
+           plugin.getUserInfoByUserName(usr);
+           throw new Exception("S'esperava un error controlat però la cridada ha finalitzat sens ellançar excepció");
+           
+        } catch (Exception e) {
+            // OK
+            if (e.getMessage().equals("Wrong value for parameter sortOrder")) {
+                // OK
+            } else {
+                e.printStackTrace();
+                throw new Exception("S'esperava un error amb missatge \"Wrong value for parameter sortOrder\" però"
+                        + " l'error capturat és " + e.getMessage());
+            }
+        }
     }
 
     public void testErrorRestAuthentication() throws Exception {

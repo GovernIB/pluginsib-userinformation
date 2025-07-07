@@ -25,6 +25,7 @@ import org.fundaciobit.pluginsib.userinformation.soffid.beans.Resource;
 import org.fundaciobit.pluginsib.userinformation.soffid.beans.SoffidUserResults;
 
 import com.unboundid.scim2.common.exceptions.NotImplementedException;
+import com.unboundid.scim2.common.messages.ErrorResponse;
 
 /**
  * Plugin per a la informació d'usuaris cridant a Soffid.
@@ -166,17 +167,35 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
         Response response = target.request("application/scim+json")
                 .header(javax.ws.rs.core.HttpHeaders.AUTHORIZATION, "Basic " + encodedCredentials).get();
 
-        if (response.getStatus() != 200) {
+        final int status = response.getStatus();
+
+        if (status == 200) {
+            T value = response.readEntity(classe);
+            response.close(); // You should close connections
+            return value;
+        } else {
+
             log.error("callToURL():: Error al cridar a la URL: " + fullUrl + " amb codi d'error " + response.getStatus()
                     + ": " + response.getStatusInfo().getReasonPhrase());
-            throw new Exception("Failed : HTTP error code " + response.getStatus() + ": "
-                    + response.getStatusInfo().getReasonPhrase() + response.readEntity(String.class));
+            if (status == 400) {
+                ErrorResponse error = null;
+                try {
+                    error = response.readEntity(ErrorResponse.class);
+                } catch (Throwable e) {
+                    // No feim res
+                    if (isDebug()) {
+                        log.error("Error al llegir ErrorResponse.class de la resposta: " + e.getMessage(), e);
+                    }
+                }
+
+                if (error != null) {
+                    throw new Exception(error.getDetail());
+                }
+            }
+
+            throw new Exception("Failed : HTTP error code " + status + ": " + response.getStatusInfo().getReasonPhrase()
+                    + "\n" + response.readEntity(String.class));
         }
-
-        T value = response.readEntity(classe);
-        response.close(); // You should close connections
-
-        return value;
 
     }
 
