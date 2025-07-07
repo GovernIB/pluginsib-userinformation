@@ -19,5 +19,6 @@ api | Interficie de programació del plugin | --
 database | Recupera les dades d'usuari de una BBDD. | -- 
 ldap | Recupera la informació d'usuari dels servidors ldap | --
 keycloak | Recupera la informació d'un servidor KeyCloak | --
+soffid | Recupera la informació d'un servidor Soffid | --
 
 
