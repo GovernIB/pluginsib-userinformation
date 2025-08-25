@@ -130,6 +130,7 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
     public UserInfo getUserInfoByAdministrationID(String administrationID) throws Exception {
 
         if (administrationID == null || administrationID.trim().length() == 0) {
+            log.warn("getUserInfoByAdministrationID():: administrationID is null or empty");
             return null;
         }
 
@@ -164,10 +165,12 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
         Client client = ClientBuilder.newBuilder().build();
 
         WebTarget target = client.target(fullUrl);
+        
         Response response = target.request("application/scim+json")
                 .header(javax.ws.rs.core.HttpHeaders.AUTHORIZATION, "Basic " + encodedCredentials).get();
 
         final int status = response.getStatus();
+       
 
         if (status == 200) {
             T value = response.readEntity(classe);
@@ -379,19 +382,8 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
 
     @Override
     public String[] getAllUsernames() throws Exception {
-
-        String urlOperationBase = "/User?sortBy=lastName&sortOrder=ascending";
-
-        List<Resource> results = consultaPaginada(urlOperationBase, isDebug());
-
-        List<String> usernames = new ArrayList<String>(results.size());
-
-        for (Resource resource : results) {
-            usernames.add(resource.getUserName());
-        }
-
-        return usernames.toArray(new String[usernames.size()]);
-
+        // User SoffidFullUserInformationPlugin
+        throw new Exception("getAllUsernames() no està implementat en aquest plugin.");
     }
 
     protected List<Resource> consultaPaginada(String urlOperationBase, boolean debug) throws Exception {

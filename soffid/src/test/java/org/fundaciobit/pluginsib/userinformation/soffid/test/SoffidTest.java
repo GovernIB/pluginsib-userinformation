@@ -43,39 +43,39 @@ public class SoffidTest {
 
             tester.testErrorInRestQuery();
 
-            
             tester.testErrorRestAuthentication();
-            
-                        
+
+            tester.testCountUsers();
+
             tester.testGetUserInfoByAdminID();
-            
+
             tester.testGetUserInfoByUserName();
-            
+
             tester.testSearchByPartialMultipleValuesOr();
-            
+
             tester.testSearchByPartialMultipleValuesAnd();
-            
+
             tester.testSearchByPartialEmail();
-            
+
             tester.testGetUsersByPartialNameOrPartialSurnames();
-            
+
             tester.testSearchByPartialAdministrationID();
-            
+
             tester.testSearchByPartialUsername();
-            
+
             tester.testGetRolesByUsername();
-            
+
             tester.testGetUsernamesByRol();
-            
+
             tester.testGetUserInfoByRol();
-            
+
             System.out.println("Count usernames:" + tester.getInstance().countAllUsers());
-            
+
             // NO EXECUTAR Massa Consum
             //System.out.println("All usernames:" + tester.getInstance().getAllUsernames().length);
 
             tester.testAuthenticate();
-            
+
             System.out.println((System.currentTimeMillis() - start) + " ms");
 
         } catch (Exception e) {
@@ -89,9 +89,9 @@ public class SoffidTest {
         IUserInformationPlugin plugin = this.getInstance();
         String usr = "12345677D\"&sortBy=lastName2&sortOrder=nicapamunt&hola=\"sdfasdf";
         try {
-           plugin.getUserInfoByUserName(usr);
-           throw new Exception("S'esperava un error controlat però la cridada ha finalitzat sens ellançar excepció");
-           
+            plugin.getUserInfoByUserName(usr);
+            throw new Exception("S'esperava un error controlat però la cridada ha finalitzat sens ellançar excepció");
+
         } catch (Exception e) {
             // OK
             if (e.getMessage().equals("Wrong value for parameter sortOrder")) {
@@ -108,6 +108,10 @@ public class SoffidTest {
 
         Properties prop = getSoffidProperties();
 
+        for (Object key : prop.keySet()) {
+            System.out.println(key + "=" + prop.get(key));
+        }
+
         prop.setProperty(BASEPACKAGE + SoffidUserInformationPlugin.PASSWORD_PROPERTY, "incorrect_password");
 
         IUserInformationPlugin plugin = this.getInstance(prop);
@@ -115,7 +119,14 @@ public class SoffidTest {
         String nif = getTestProperties().getProperty("dni");
 
         try {
-            plugin.getUserInfoByAdministrationID(nif);
+            UserInfo user = plugin.getUserInfoByAdministrationID(nif);
+
+            if (user == null) {
+                log.error("No s'ha trobat l'usuari amb NIF " + nif);
+            } else {
+                log.error(user.toString());
+            }
+
             throw new Exception("Hauria de fallar amb error 401 Unauthorized");
         } catch (Exception e) {
 
@@ -124,6 +135,38 @@ public class SoffidTest {
             if (!e.getMessage().contains(expectedMsg)) {
                 e.printStackTrace();
                 throw new Exception("Hauria de fallar amb un error amb missatge '" + expectedMsg + "'");
+            }
+        }
+
+        System.out.println(" Ha tardat: " + (System.currentTimeMillis() - start));
+    }
+
+    public void testCountUsers() throws Exception {
+
+        IUserInformationPlugin plugin = this.getInstance();
+        long start = System.currentTimeMillis();
+
+        long count = plugin.countAllUsers();
+        System.out.println("El número d'usuaris en el sistema és " + count);
+
+        System.out.println(" Ha tardat: " + (System.currentTimeMillis() - start));
+    }
+
+    public void testGetAllUsernames() throws Exception {
+
+        IUserInformationPlugin plugin = this.getInstance();
+        long start = System.currentTimeMillis();
+
+        try {
+            plugin.getAllUsernames();
+        } catch (Exception e) {
+            if (e.getMessage().equals("getAllUsernames() no està implementat en aquest plugin.")) {
+                log.info("El mètode getAllUsernames() no està implementat. OK");
+                return;
+            } else {
+                log.error("S'esperava un error de mètode no implementat però s'ha rebut una excepció diferent: "
+                        + e.getMessage());
+                throw e;
             }
         }
 
