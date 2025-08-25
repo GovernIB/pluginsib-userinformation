@@ -27,3 +27,4 @@ nb-configuration.xml
 /soffid/soffid.properties
 /soffid/test.properties
 /ldap/connection.pro_caib.properties
+/soffid/src/test/java/org/fundaciobit/pluginsib/userinformation/soffid/test/MySoffidTest.java
