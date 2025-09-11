@@ -527,20 +527,23 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
         Set<String> roles = new TreeSet<String>();
         {
             Map<String, ClientMappingsRepresentation> rolesClient = mr.getClientMappings();
-            for (Entry<String, ClientMappingsRepresentation> entry : rolesClient.entrySet()) {
-
-                List<RoleRepresentation> rolesRepre = entry.getValue().getMappings();
-
-                for (RoleRepresentation rr : rolesRepre) {
-                    roles.add(rr.getName());
+            if (rolesClient != null) {
+                for (Entry<String, ClientMappingsRepresentation> entry : rolesClient.entrySet()) {
+    
+                    List<RoleRepresentation> rolesRepre = entry.getValue().getMappings();
+    
+                    for (RoleRepresentation rr : rolesRepre) {
+                        roles.add(rr.getName());
+                    }
                 }
             }
         }
 
         List<RoleRepresentation> rolesRepre = mr.getRealmMappings();
-
-        for (RoleRepresentation rr : rolesRepre) {
-            roles.add(rr.getName());
+        if (rolesRepre != null) {
+            for (RoleRepresentation rr : rolesRepre) {
+                roles.add(rr.getName());
+            }
         }
 
         RolesInfo ri = new RolesInfo(username, roles.toArray(new String[roles.size()]));
