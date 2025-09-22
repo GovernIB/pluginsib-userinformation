@@ -4,7 +4,9 @@ import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -140,6 +142,11 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
 
         SoffidUserResults sur = callToURL(urlOperation, SoffidUserResults.class);
 
+        if (sur.getTotalResults() > 1) {
+            throw new Exception("Hi ha més d'un usuari amb NIF: " + administrationID
+                    + ". Revisi si aquest NIF és correcte i està sencer.");
+        }
+
         return soffidUserResultToUserInfo(sur, urlOperation);
 
     }
@@ -165,14 +172,25 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
         Client client = ClientBuilder.newBuilder().build();
 
         WebTarget target = client.target(fullUrl);
-        
+
         Response response = target.request("application/scim+json")
                 .header(javax.ws.rs.core.HttpHeaders.AUTHORIZATION, "Basic " + encodedCredentials).get();
 
         final int status = response.getStatus();
-       
 
         if (status == 200) {
+            
+            /*
+            String hola = response.readEntity(String.class);
+            
+            System.out.println("Resposta: " + hola);
+            
+            
+            Thread.sleep(10000);
+            */
+            
+            
+            
             T value = response.readEntity(classe);
             response.close(); // You should close connections
             return value;
@@ -313,12 +331,41 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
             ui.setCompanyDepartment(resource.getUserGroupCode());
         }
 
+        Map<String, String> attributes = new LinkedHashMap<String, String>();
         if (resource.getAttributes() != null) {
-            ui.setEmail(resource.getAttributes().get(Attributes.E_MAIL_CONTACTE));
-            ui.setAdministrationID(resource.getAttributes().get(Attributes.NIF));
-            if (ui.getEmail() == null) {
-                ui.setEmail(resource.getAttributes().get(Attributes.E_MAIL_CONTACTE));
+
+            for (Map.Entry<String, String> att : resource.getAttributes().entrySet()) {
+                String key = att.getKey();
+                String value = att.getValue();
+
+                switch (key) {
+                    case Attributes.E_MAIL_CONTACTE:
+                        if (ui.getEmail() == null) {
+                            ui.setEmail(value);
+                        }
+                    break;
+
+                    case Attributes.NIF:
+                        ui.setAdministrationID(value);
+                    break;
+
+                    case Attributes.PHONE:
+                        ui.setMobileNumber(value);
+                    break;
+
+                    case Attributes.PSEUDONIM:
+                        if (value != null && value.trim().length() != 0) {
+                            ui.setPseudonyms(new HashSet<String>(Arrays.asList(value)));
+                        }
+
+                    default:
+                        // Ho ficam a la llista d'atributs no controlats
+                        if (isDebug()) {
+                            attributes.put(key, value);
+                        }
+                }
             }
+
         }
 
         if (resource.getCreatedDate() != null) {
@@ -329,7 +376,6 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
             ui.setCreationDate(SDF.parse(resource.getStartDate()));
         }
 
-        Map<String, String> attributes = new LinkedHashMap<String, String>();
         if (resource.getUserType() != null) {
             attributes.put("userType", resource.getUserType());
         }
@@ -364,7 +410,7 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
 
     @Override
     public boolean authenticate(String username, String password) throws Exception {
-
+// TODO
         throw new NotImplementedException(
                 "Mètode autenticate(usr, pwd) no implementat. Per favor consulta mètode isImplementedAuthenticationByUsernamePasword()");
     }
@@ -386,7 +432,8 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
         throw new Exception("getAllUsernames() no està implementat en aquest plugin.");
     }
 
-    protected List<Resource> consultaPaginada(String urlOperationBase, boolean debug) throws Exception {
+    protected List<Resource> consultaPaginada(String urlOperationBase, boolean debug, boolean checkMaxValuesAllowed)
+            throws Exception, ExceededMaximumAllowedResultsException {
         List<Resource> results = null;
 
         int total = -1;
@@ -400,6 +447,14 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
 
             if (startIndex == 1) {
                 total = sur.getTotalResults();
+                if (checkMaxValuesAllowed) {
+                    final int maxAllowed = getMaxAllowedNumberOfResults();
+                    if (total > maxAllowed) {
+                        SearchStatus smax = errorMassaResultats(maxAllowed, total);
+                        throw new ExceededMaximumAllowedResultsException(smax);
+                    }
+                }
+
                 results = new ArrayList<Resource>(total);
             }
 
@@ -446,7 +501,7 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
 
         //SoffidUserResults sur = callToURL(urlOperation, SoffidUserResults.class);
 
-        List<Resource> resources = consultaPaginada(urlOperation, debug);
+        List<Resource> resources = consultaPaginada(urlOperation, debug, false);
 
         //String sur = callToURL(urlOperation, String.class);
         String[] roles = new String[resources.size()];
@@ -480,7 +535,7 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
         String urlOperation = "/RoleAccount?sortBy=userCode&filter=roleName+eq+\"" + rol
                 + "\"+and+enabled+eq+true+and+system+eq+\"" + entorn + "\"";
 
-        List<Resource> resources = consultaPaginada(urlOperation, debug);
+        List<Resource> resources = consultaPaginada(urlOperation, debug, false);
 
         //String sur = callToURL(urlOperation, String.class);
         UserInfo[] users = new UserInfo[resources.size()];
@@ -507,7 +562,7 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
         String urlOperation = "/RoleAccount?sortBy=userCode&filter=roleName+eq+\"" + rol
                 + "\"+and+enabled+eq+true+and+system+eq+\"" + entorn + "\"";
 
-        List<Resource> resources = consultaPaginada(urlOperation, debug);
+        List<Resource> resources = consultaPaginada(urlOperation, debug, false);
 
         //String sur = callToURL(urlOperation, String.class);
         String[] users = new String[resources.size()];
@@ -540,19 +595,30 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
 
         final String urlOperation = "/User?filter=userName co \"" + partialUsername + "\"";
 
-        SoffidUserResults results = callToURL(urlOperation, SoffidUserResults.class);
+        try {
+            List<Resource> resources = consultaPaginada(urlOperation, isDebug(), true);
 
+            List<UserInfo> users = resourcesToUserInfoList(resources);
+
+            return new SearchUsersResult(users);
+
+        } catch (ExceededMaximumAllowedResultsException e) {
+            return new SearchUsersResult(e.getSmax());
+        }
+
+        /*        SoffidUserResults results = callToURL(urlOperation, SoffidUserResults.class);
+        
         final int maxAllowed = getMaxAllowedNumberOfResults();
-
+        
         if (results.getTotalResults() > maxAllowed) {
             SearchStatus smax = errorMassaResultats(maxAllowed, results.getTotalResults());
             return new SearchUsersResult(smax);
         }
-
+        
         List<UserInfo> us = soffidUserResultToUserInfos(results);
-
+        
         return new SearchUsersResult(us);
-
+        */
     }
 
     /**
@@ -611,18 +677,31 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
         final String urlOperation = "/User?filter=firstName co \"" + partialNameOrSurname + "\" OR lastName co \""
                 + partialNameOrSurname + "\" OR middleName co \"" + partialNameOrSurname + "\"";
 
+        try {
+            List<Resource> resources = consultaPaginada(urlOperation, isDebug(), true);
+
+            List<UserInfo> users = resourcesToUserInfoList(resources);
+
+            return new SearchUsersResult(users);
+
+        } catch (ExceededMaximumAllowedResultsException e) {
+            return new SearchUsersResult(e.getSmax());
+        }
+
+        /*
         SoffidUserResults results = callToURL(urlOperation, SoffidUserResults.class);
-
+        
         final int maxAllowed = getMaxAllowedNumberOfResults();
-
+        
         if (results.getTotalResults() > maxAllowed) {
             SearchStatus smax = errorMassaResultats(maxAllowed, results.getTotalResults());
             return new SearchUsersResult(smax);
         }
-
+        
         List<UserInfo> us = soffidUserResultToUserInfos(results);
-
+        
         return new SearchUsersResult(us);
+        */
 
     }
 
@@ -638,19 +717,41 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
 
         final String urlOperation = "/User?filter=attributes.NIF co \"" + partialAdministratorID + "\"";
 
+        try {
+            List<Resource> resources = consultaPaginada(urlOperation, isDebug(), true);
+
+            List<UserInfo> users = resourcesToUserInfoList(resources);
+
+            return new SearchUsersResult(users);
+
+        } catch (ExceededMaximumAllowedResultsException e) {
+            return new SearchUsersResult(e.getSmax());
+        }
+
+        /*
         SoffidUserResults results = callToURL(urlOperation, SoffidUserResults.class);
-
+        
+        
         final int maxAllowed = getMaxAllowedNumberOfResults();
-
+        
         if (results.getTotalResults() > maxAllowed) {
             SearchStatus smax = errorMassaResultats(maxAllowed, results.getTotalResults());
             return new SearchUsersResult(smax);
         }
-
+        
         List<UserInfo> us = soffidUserResultToUserInfos(results);
-
+        
         return new SearchUsersResult(us);
+        
+        */
+    }
 
+    protected List<UserInfo> resourcesToUserInfoList(List<Resource> resources) throws ParseException {
+        List<UserInfo> users = new ArrayList<UserInfo>(resources.size());
+        for (Resource resource : resources) {
+            users.add(resourceToUserInfo(resource));
+        }
+        return users;
     }
 
     @Override
@@ -795,17 +896,28 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
                     + filtre.toString());
         }
 
+        List<UserInfo> allResults;
+        try {
+            List<Resource> resources = consultaPaginada(urlOperation, isDebug(), true);
+
+            allResults = resourcesToUserInfoList(resources);
+
+        } catch (ExceededMaximumAllowedResultsException e) {
+            return new SearchUsersResult(e.getSmax());
+        }
+
+        /*
         SoffidUserResults results = callToURL(urlOperation, SoffidUserResults.class);
-
+        
         final int maxAllowed = getMaxAllowedNumberOfResults();
-
+        
         // Massa resultats ????
         if (results.getTotalResults() > maxAllowed) {
             SearchStatus smax = errorMassaResultats(maxAllowed, results.getTotalResults());
             return new SearchUsersResult(smax);
         }
-
         List<UserInfo> allResults = soffidUserResultToUserInfos(results);
+        */
 
         List<UserInfo> list;
         if (empty(emailPartial) || isAnd == false) {

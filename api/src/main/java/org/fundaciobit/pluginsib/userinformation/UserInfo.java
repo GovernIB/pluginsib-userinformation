@@ -2,6 +2,7 @@ package org.fundaciobit.pluginsib.userinformation;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 
@@ -17,53 +18,55 @@ public class UserInfo {
     /**
      * Identificador intern de cada sistema
      */
-    String id;
+    protected String id;
 
-    String username;
+    protected String username;
 
-    String administrationID;
+    protected String administrationID;
 
-    String name;
+    protected String name;
 
-    String surname1;
+    protected String surname1;
 
-    String surname2;
+    protected String surname2;
 
-    String email;
+    protected String email;
 
-    String language;
+    protected String language;
 
-    String phoneNumber;
+    protected String phoneNumber;
 
-    String mobileNumber;
+    protected String mobileNumber;
 
-    Gender gender = Gender.UNKNOWN;
+    protected Gender gender = Gender.UNKNOWN;
 
-    String address;
+    protected String address;
 
-    String company;
+    protected String company;
 
-    String companyArea;
+    protected String companyArea;
 
-    String companyDepartment;
+    protected String companyDepartment;
 
-    String website;
+    protected String website;
 
-    Date birthDate;
+    protected Date birthDate;
 
-    Date creationDate;
+    protected Date creationDate;
 
-    String notes;
+    protected String notes;
 
-    String dir3;
+    protected String dir3;
 
-    String dir3Parent;
+    protected String dir3Parent;
 
-    String dir3Company;
+    protected String dir3Company;
 
-    Map<String, String> socialNetworks;
+    protected Set<String> pseudonyms;
 
-    Map<String, String> attributes;
+    protected Map<String, String> socialNetworks;
+
+    protected Map<String, String> attributes;
 
     public String getUsername() {
         return username;
@@ -251,6 +254,14 @@ public class UserInfo {
 
     public Map<String, String> getAttributes() {
         return attributes;
+    }
+
+    public Set<String> getPseudonyms() {
+        return pseudonyms;
+    }
+
+    public void setPseudonyms(Set<String> pseudonyms) {
+        this.pseudonyms = pseudonyms;
     }
 
     public void setAttributes(Map<String, String> attributes) {

@@ -17,7 +17,7 @@ public class SoffidFullUserInformationPlugin extends SoffidUserInformationPlugin
 
         String urlOperationBase = "/User?sortBy=lastName&sortOrder=ascending";
 
-        List<Resource> results = consultaPaginada(urlOperationBase, isDebug());
+        List<Resource> results = consultaPaginada(urlOperationBase, isDebug(), false);
 
         List<String> usernames = new ArrayList<String>(results.size());
 

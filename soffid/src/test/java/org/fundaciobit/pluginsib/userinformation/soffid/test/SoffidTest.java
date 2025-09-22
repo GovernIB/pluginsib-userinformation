@@ -173,7 +173,7 @@ public class SoffidTest {
         System.out.println(" Ha tardat: " + (System.currentTimeMillis() - start));
     }
 
-    public void testGetUserInfoByAdminID() throws Exception {
+    public UserInfo testGetUserInfoByAdminID() throws Exception {
 
         IUserInformationPlugin plugin = this.getInstance();
         long start = System.currentTimeMillis();
@@ -189,6 +189,8 @@ public class SoffidTest {
         }
 
         System.out.println(" Ha tardat: " + (System.currentTimeMillis() - start));
+        
+        return ui;
     }
 
     protected void testSearchByPartialMultipleValuesOr() throws Exception {
@@ -275,26 +277,40 @@ public class SoffidTest {
      * @param plugin
      * @throws Exception
      */
-    protected void testSearchByPartialAdministrationID() throws Exception {
+    protected List<UserInfo> testSearchByPartialAdministrationID() throws Exception {
 
         IUserInformationPlugin plugin = getInstance();
 
-        String nif = getTestProperties().getProperty("dni");
+        String partialNif = getTestProperties().getProperty("partialdni");
 
-        UserInfo ui = plugin.getUserInfoByAdministrationID(nif);
-
-        if (ui == null) {
-            throw new Exception("No s'ha trobat usuari amb NIF " + nif);
+        
+        if (partialNif == null || partialNif.isEmpty() ) {
+            throw new Exception("No s'ha definit la propietat 'partialdni' en el fitxer test.properties");
         }
 
-        String partialNif = nif.substring(0, nif.length() / 2 + 2);
-
-        log.info(" ========= CERCA AMB NIF PARCIAL " + partialNif + "  (" + ui.getUsername() + ") ===========");
+        log.info(" ========= CERCA AMB NIF PARCIAL " + partialNif + " ===========");
 
         SearchUsersResult sur = plugin.getUsersByPartialAdministrationID(partialNif);
-        checkSearchUsersResult(sur, ui.getUsername());
+        
+        if (sur.getStatus().getResultCode() != SearchStatus.RESULT_OK) {
+            throw new Exception(" ERROR [testSearchByPartialAdministrationID] = " + sur.getStatus().getResultMessage());
+        };
+        
+        System.out.println("Trobats " + sur.getUsers().size() + " usuaris amb NIF parcial " + partialNif);
+        
+        for (UserInfo u : sur.getUsers()) {
+            if (u.getAdministrationID() == null) {
+                throw new Exception(" ERROR [testSearchByPartialAdministrationID] = usuari " + u.getUsername() + " te NIF null i no s'ajusta al partialdni " + partialNif);
+            }
+            if (u.getAdministrationID().indexOf(partialNif) == -1) {
+                throw new Exception(" ERROR [testSearchByPartialAdministrationID] = usuari " + u.getUsername() + " te NIF " + u.getAdministrationID() + " i no s'ajusta al partialdni " + partialNif); 
+            }
+            // OK
+        }
 
-        log.info("      OK. Trobat usuari.");
+        log.info("      OK. Usuari s'ajusten al partialNif.");
+        
+        return sur.getUsers();
 
     }
 

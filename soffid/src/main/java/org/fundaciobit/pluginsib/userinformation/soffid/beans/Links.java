@@ -4,7 +4,11 @@ package org.fundaciobit.pluginsib.userinformation.soffid.beans;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.annotation.Generated;
-
+/**
+ * 
+ * @author anadal
+ * 22 sept 2025 10:52:55
+ */
 @Generated("jsonschema2pojo")
 public class Links {
 

@@ -5,7 +5,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
-
+/**
+ * 
+ * @author anadal
+ * 22 sept 2025 10:52:45
+ */
 @Generated("jsonschema2pojo")
 public class Resource {
 

@@ -220,7 +220,9 @@ public class TestUserInfoLdapPlugin {
     public static void testGetRolesOfUsername(LdapUserInformationPlugin ldap, String username) throws Exception {
         System.out.println("\n\n======= Cridant a getRolesByUsername");
         org.fundaciobit.pluginsib.userinformation.RolesInfo rolesInfo = ldap.getRolesByUsername(username);
-        if (rolesInfo != null) {
+        if (rolesInfo == null) {
+            System.err.println("No s'ha trobat roles per l'usuari |" + username + "|");
+        } else {
             System.out.println(" ------- getRolesByUsername(" + username + ") ------- ");
             String[] roles = rolesInfo.getRoles();
 

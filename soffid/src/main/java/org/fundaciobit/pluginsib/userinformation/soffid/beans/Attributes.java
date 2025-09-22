@@ -14,14 +14,16 @@ import javax.annotation.Generated;
 public class Attributes {
 
     public static final String EXPEDIENT_CERTIFICAT = "EXPEDIENT CERTIFICAT";
-
     public static final String NIF = "NIF";
     public static final String E_MAIL_CONTACTE = "E-MAIL CONTACTE";
+
+    public static final String PSEUDONIM = "PSEUDONIM";
+    public static final String PHONE = "PHONE";
 
     private Map<String, Object> additionalProperties = new LinkedHashMap<String, Object>();
 
     public String getExpedientCertificat() {
-        return (String) this.additionalProperties.get(EXPEDIENT_CERTIFICAT);        
+        return (String) this.additionalProperties.get(EXPEDIENT_CERTIFICAT);
     }
 
     public String getNif() {

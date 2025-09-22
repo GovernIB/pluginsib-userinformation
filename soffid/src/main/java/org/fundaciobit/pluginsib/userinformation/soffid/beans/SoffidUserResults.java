@@ -5,13 +5,17 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
-import javax.json.bind.annotation.JsonbProperty;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import jakarta.xml.bind.annotation.XmlElement;
-
+/**
+ * 
+ * @author anadal
+ * 22 sept 2025 10:52:40
+ */
 @Generated("jsonschema2pojo")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SoffidUserResults {
 
     private List<String> schemas;
@@ -20,8 +24,7 @@ public class SoffidUserResults {
     private Integer itemsPerPage;
 
     @JsonProperty("Resources")
-    @JsonbProperty("Resources")
-    @XmlElement(name = "Resources")
+    @javax.xml.bind.annotation.XmlElement(name = "Resources")
     private List<Resource> Resources;
     private Map<String, Object> additionalProperties = new LinkedHashMap<String, Object>();
 

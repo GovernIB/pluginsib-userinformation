@@ -81,7 +81,7 @@ public class LdapUserInformationPlugin extends AbstractUserInformationPlugin {
         if (roles == null) {
             return null;
         } else {
-            return new RolesInfo(username, roles.toArray(new String[0]));
+            return new RolesInfo(username, roles.toArray(new String[roles.size()]));
         }
     }
 
