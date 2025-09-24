@@ -40,6 +40,7 @@ org.fundaciobit.sample.pluginsib.userinformation.keycloak.mapping.administration
 #org.fundaciobit.sample.pluginsib.userinformation.keycloak.mapping.companyDepartment=departmentNumber
 #org.fundaciobit.sample.pluginsib.userinformation.keycloak.mapping.surname1=sn1
 #org.fundaciobit.sample.pluginsib.userinformation.keycloak.mapping.surname2=sn2
+#org.fundaciobit.sample.pluginsib.userinformation.keycloak.mapping.pseudonyms=pseudonyms
 
 
 # Per depuració

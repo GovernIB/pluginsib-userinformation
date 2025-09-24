@@ -358,6 +358,10 @@ public class UserInfo {
         if (birthDate != null) {
             str.append(tab + "birthDate: " + this.birthDate + "\n");
         }
+        
+        if (pseudonyms != null && pseudonyms.size() != 0) {
+            str.append(tab + "pseudonyms:" +  pseudonyms + "\n");
+        }
 
         if (creationDate != null) {
             str.append(tab + "creationDate: " + this.creationDate + "\n");

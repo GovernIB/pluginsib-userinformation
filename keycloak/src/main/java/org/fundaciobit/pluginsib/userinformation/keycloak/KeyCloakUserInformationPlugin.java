@@ -402,6 +402,10 @@ public class KeyCloakUserInformationPlugin extends AbstractUserInformationPlugin
                         log.error(" Error processant mapping de GENDER (-1, 0 o 1): " + attributeUserValue);
                     }
 
+                } else if ("pseudonyms".equals(userInfoField)) {
+                    // Convertir String a List<String>
+                    String[] pseudos = attributeUserValue.split(",");
+                    ui.setPseudonyms(new HashSet<String>(Arrays.asList(pseudos)));
                 } else {
                     // TODO XYZ ZZZ FALTA CHECK DE DATES
                     field.set(ui, attributeUserValue);

@@ -18,7 +18,7 @@ import org.fundaciobit.pluginsib.userinformation.UserInfo;
 import org.jboss.logging.Logger;
 
 /**
- * Unit test for simple App.
+ * No modificar aquesta classe. Crear una classe MyKeyCloakTest que extengui aquesta
  * 
  * @author anadal (u80067)
  */
@@ -30,36 +30,33 @@ public class KeyCloakTest {
 
         try {
             KeyCloakTest tester = new KeyCloakTest();
-            IUserInformationPlugin plugin = tester.getInstance();
 
             // test getAllUsernames
-            long start = System.currentTimeMillis();
-            System.out.println("All usernames:" + plugin.getAllUsernames().length);
-            System.out.println((System.currentTimeMillis() - start) + " ms");
+            tester.testGetAllUserNames();
 
             // XYZ ZZZ falta test EMAIL
 
-            //tester.testSearchByPartialMultipleValuesOr(plugin);
+            tester.testSearchByPartialMultipleValuesOr();
 
-            //tester.testSearchByPartialMultipleValuesAnd(plugin);
+            tester.testSearchByPartialMultipleValuesAnd();
 
-            //tester.testSearchByPartialAdministrationID(plugin);
+            tester.testSearchByPartialAdministrationID();
 
-            //tester.testSearchByPartialUsername(plugin);
+            tester.testSearchByPartialUsername();
 
-            //tester.testGetUsersByPartialNameOrPartialSurnames(plugin);
+            tester.testGetUsersByPartialNameOrPartialSurnames();
 
-            //tester.testGetUserInfoByUserName(plugin);
+            tester.testGetUserInfoByUserName();
 
-            //tester.testGetUserInfoByAdminID(plugin);
+            tester.testGetUserInfoByAdminID();
 
-            //tester.testGetRolesByUsername(plugin);
+            tester.testGetRolesByUsername();
 
-            tester.testGetUsernamesByRol(plugin);
+            tester.testGetUsernamesByRol();
 
-            tester.testGetUserInfoByRol(plugin);
+            tester.testGetUserInfoByRol();
 
-            //tester.testAuthenticate(plugin);
+            tester.testAuthenticate();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -67,17 +64,28 @@ public class KeyCloakTest {
 
     }
 
-    protected void testSearchByPartialMultipleValuesOr(IUserInformationPlugin plugin) throws Exception {
+    protected void testGetAllUserNames() throws Exception {
+        long start = System.currentTimeMillis();
+
+        IUserInformationPlugin plugin = this.getInstance();
+
+        System.out.println("All usernames:" + plugin.getAllUsernames().length);
+        System.out.println((System.currentTimeMillis() - start) + " ms");
+    }
+
+    protected void testSearchByPartialMultipleValuesOr() throws Exception {
 
         final boolean isAnd = false;
+        IUserInformationPlugin plugin = this.getInstance();
 
         testSearchByPartialMultipleValuesAndOr(plugin, isAnd);
 
     }
 
-    protected void testSearchByPartialMultipleValuesAnd(IUserInformationPlugin plugin) throws Exception {
+    protected void testSearchByPartialMultipleValuesAnd() throws Exception {
 
         final boolean isAnd = true;
+        IUserInformationPlugin plugin = this.getInstance();
 
         testSearchByPartialMultipleValuesAndOr(plugin, isAnd);
 
@@ -119,7 +127,9 @@ public class KeyCloakTest {
      * @param plugin
      * @throws Exception
      */
-    protected void testSearchByPartialAdministrationID(IUserInformationPlugin plugin) throws Exception {
+    protected void testSearchByPartialAdministrationID() throws Exception {
+
+        IUserInformationPlugin plugin = this.getInstance();
 
         KeyCloakUserInformationPlugin keycloak = (KeyCloakUserInformationPlugin) plugin;
 
@@ -157,9 +167,9 @@ public class KeyCloakTest {
         }
     }
 
-    protected void testSearchByPartialUsername(IUserInformationPlugin plugin) throws Exception {
+    protected void testSearchByPartialUsername() throws Exception {
 
-        KeyCloakUserInformationPlugin keycloak = (KeyCloakUserInformationPlugin) plugin;
+        IUserInformationPlugin plugin = this.getInstance();
 
         final String titol = " ========= CERCA AMB USERNAME PARCIAL ";
 
@@ -167,28 +177,32 @@ public class KeyCloakTest {
 
         for (String partialUsername : partialUsernames) {
             log.info("-------------------------------------");
-            SearchUsersResult sur = keycloak.getUsersByPartialUserName(partialUsername);
+            SearchUsersResult sur = plugin.getUsersByPartialUserName(partialUsername);
             printSearchUsersResult(titol, partialUsername, sur);
             log.info("");
         }
 
     }
 
-    protected void testGetUsersByPartialNameOrPartialSurnames(IUserInformationPlugin plugin) throws Exception {
+    protected void testGetUsersByPartialNameOrPartialSurnames() throws Exception {
 
-        KeyCloakUserInformationPlugin keycloak = (KeyCloakUserInformationPlugin) plugin;
+        IUserInformationPlugin plugin = this.getInstance();
+
+        //KeyCloakUserInformationPlugin keycloak = (KeyCloakUserInformationPlugin) plugin;
 
         final String titol = " ========= CERCA AMB NOM/LLINATGE PARCIAL ";
 
         final String partialNameOrPartialSurnames = "nad";
 
-        SearchUsersResult sur = keycloak.getUsersByPartialNameOrPartialSurnames(partialNameOrPartialSurnames);
+        SearchUsersResult sur = plugin.getUsersByPartialNameOrPartialSurnames(partialNameOrPartialSurnames);
 
         printSearchUsersResult(titol, partialNameOrPartialSurnames, sur);
 
     }
 
-    protected void testGetRolesByUsername(IUserInformationPlugin plugin) throws Exception {
+    protected void testGetRolesByUsername() throws Exception {
+
+        IUserInformationPlugin plugin = this.getInstance();
 
         String[] usrs = new String[] { "am" };
         for (String usr : usrs) {
@@ -201,7 +215,10 @@ public class KeyCloakTest {
         }
     }
 
-    protected void testAuthenticate(IUserInformationPlugin plugin) throws Exception {
+    protected void testAuthenticate() throws Exception {
+
+        IUserInformationPlugin plugin = this.getInstance();
+
         System.out.println("Authenticate: " + plugin.authenticate("anadal", "anadal"));
 
         System.out.println("Authenticate: " + plugin.authenticate("anadal", "anadal1234"));
@@ -211,7 +228,9 @@ public class KeyCloakTest {
         System.out.println("Authenticate: " + plugin.authenticate("u999000", "u999000z"));
     }
 
-    protected void testGetUsernamesByRol(IUserInformationPlugin plugin) throws Exception {
+    protected void testGetUsernamesByRol() throws Exception {
+
+        IUserInformationPlugin plugin = this.getInstance();
 
         //String rol = "IGE_USER";
         //String rol = "DEM_USER";
@@ -225,7 +244,9 @@ public class KeyCloakTest {
         System.out.println("Usuaris amb ROL '" + rol + "': " + Arrays.toString(users));
     }
 
-    protected void testGetUserInfoByRol(IUserInformationPlugin plugin) throws Exception {
+    protected void testGetUserInfoByRol() throws Exception {
+
+        IUserInformationPlugin plugin = this.getInstance();
 
         //String rol = "IGE_USER";
         //String rol = "DEM_USER";
@@ -243,26 +264,40 @@ public class KeyCloakTest {
         System.out.println();
     }
 
-    protected void testGetUserInfoByAdminID(IUserInformationPlugin plugin) throws Exception {
-        long start = System.currentTimeMillis();
+    protected void testGetUserInfoByAdminID() throws Exception {
         String nif = "43096845C";
+        testGetUserInfoByAdminID(nif);
+    }
+
+    protected void testGetUserInfoByAdminID(String nif) throws Exception {
+        IUserInformationPlugin plugin = this.getInstance();
+        long start = System.currentTimeMillis();
+
 
         UserInfo ui = plugin.getUserInfoByAdministrationID(nif);
 
         if (ui == null) {
             System.err.println(" No es troba l'usuari amb NIF " + nif);
         } else {
-            System.out.println(" Usuari amb NIF " + nif + ": Nom " + ui.getName() + " | Llinatge  " + ui.getSurname1()
-                    + " | nif: " + ui.getAdministrationID());
+            System.out.println(" Usuari amb NIF " + nif + " trobat:\n" + ui.toFullInfo("\t"));
         }
 
         System.out.println(" Ha tardat: " + (System.currentTimeMillis() - start));
     }
 
-    protected void testGetUserInfoByUserName(IUserInformationPlugin kcui) throws Exception {
+    protected void testGetUserInfoByUserName() throws Exception {
+        
         String[] usernames = { "xtous", "jamer", "atrobat", "anadal", "jtramullas", "u999000" };//{ , "anadal", "carpeta", "admin", "jpernia", "desconegut" };
+
+        testGetUserInfoByUserName(usernames);
+    }
+
+    protected void testGetUserInfoByUserName(String[] usernames) throws Exception {
+        IUserInformationPlugin plugin = this.getInstance();
+
+        
         for (int i = 0; i < usernames.length; i++) {
-            UserInfo ui = kcui.getUserInfoByUserName(usernames[i]);
+            UserInfo ui = plugin.getUserInfoByUserName(usernames[i]);
 
             if (ui != null) {
 
