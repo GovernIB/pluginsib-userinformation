@@ -9,10 +9,9 @@
     <packaging>pom</packaging>
 
     <parent>
-        <artifactId>
-            caib-artifacts-github-governib-distribution-with-jdk11-jboss72</artifactId>
+        <artifactId>caib-artifacts-jdk11-jboss72or74-with-github-governib-distribution</artifactId>
         <groupId>es.caib.maven</groupId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.1-SNAPSHOT</version>
     </parent>
 
     <name>PluginsIB - UserInformation</name>

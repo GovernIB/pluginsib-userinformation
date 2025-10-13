@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>pluginsib-userinformation-soffid</artifactId>
@@ -18,41 +20,35 @@
             <artifactId>pluginsib-userinformation-api</artifactId>
             <version>4.0.0-SNAPSHOT</version>
         </dependency>
-        
-        
-        
-        
-        
-        
-        
+
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-client</artifactId>
             <!-- NOU <version>${resteasy-version}</version> -->
             <exclusions>
-              <exclusion>
-                <groupId>org.jboss.resteasy</groupId>
-                <artifactId>resteasy-jaxrs-services</artifactId>
-              </exclusion>
-              <exclusion>
-                <groupId>net.jcip</groupId>
-                <artifactId>jcip-annotations</artifactId>
+                <exclusion>
+                    <groupId>org.jboss.resteasy</groupId>
+                    <artifactId>resteasy-jaxrs-services</artifactId>
                 </exclusion>
-              </exclusions>
+                <exclusion>
+                    <groupId>net.jcip</groupId>
+                    <artifactId>jcip-annotations</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-multipart-provider</artifactId>
             <!-- NOU <version>${resteasy-version}</version> -->
             <exclusions>
-              <exclusion>
-                <groupId>com.sun.xml.bind</groupId>
-                <artifactId>jaxb-impl</artifactId>
-              </exclusion>
-              <exclusion>
-                <groupId>com.sun.mail</groupId>
-                <artifactId>javax.mail</artifactId>
-              </exclusion>
+                <exclusion>
+                    <groupId>com.sun.xml.bind</groupId>
+                    <artifactId>jaxb-impl</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.sun.mail</groupId>
+                    <artifactId>javax.mail</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <!-- JSON processing: jackson -->
@@ -86,24 +82,13 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
             <!-- NOU <version>${jackson-version}</version> -->
         </dependency>
-        
+
+
         <dependency>
-            <artifactId>scim2-sdk-common</artifactId>
-            <groupId>com.unboundid.product.scim2</groupId>
-            <version>3.0.0</version>
-        </dependency>
-        
-                <dependency>
             <groupId>org.jboss.logging</groupId>
             <artifactId>commons-logging-jboss-logging</artifactId>
         </dependency>
-        
-        <dependency>
-           <groupId>com.sun.mail</groupId>
-           <artifactId>javax.mail</artifactId>
-        </dependency>
-        
-        
+  
         <!--
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
@@ -145,4 +130,94 @@
         </dependency>
 
     </dependencies>
+
+
+
+
+    <profiles>
+    
+        <!-- Profile jboss72: actiu per defecte -->
+        <profile>
+            <id>jboss72_def</id>
+            <activation>
+                <property>
+                    <name>!jboss</name>
+                </property>
+            </activation>
+            <dependencies>
+                <!-- Dependències específiques per a JBoss 7.2 -->
+                <dependency>
+                    <groupId>com.sun.mail</groupId>
+                    <artifactId>javax.mail</artifactId>
+                    <type>jar</type>
+                </dependency>
+                <dependency>
+                    <artifactId>scim2-sdk-common</artifactId>
+                    <groupId>com.unboundid.product.scim2</groupId>
+                    <version>3.0.0</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    
+    
+        <!-- Profile jboss72: actiu per propietat -->
+        <profile>
+            <id>jboss72_explicit</id>
+            <activation>
+                <property>
+                    <name>jboss</name>
+                    <value>7.2</value>
+                </property>
+            </activation>
+            <dependencies>
+                <!-- Dependències específiques per a JBoss 7.2 -->
+                <dependency>
+                    <groupId>com.sun.mail</groupId>
+                    <artifactId>javax.mail</artifactId>
+                    <type>jar</type>
+                </dependency>
+                <dependency>
+                    <artifactId>scim2-sdk-common</artifactId>
+                    <groupId>com.unboundid.product.scim2</groupId>
+                    <version>3.0.0</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- Profile jboss74 actiu per propietat-->
+        <profile>
+            <id>jboss74_explicit</id>
+            <activation>
+                <property>
+                    <name>jboss</name>
+                    <value>7.4</value>
+                </property>
+            </activation>
+            <dependencies>
+                <!-- Dependències específiques per a JBoss 7.4 -->
+                <dependency>
+                    <groupId>jakarta.mail</groupId>
+                    <artifactId>jakarta.mail-api</artifactId>
+                    <version>1.6.4</version>
+                </dependency>
+                <dependency>
+                    <artifactId>scim2-sdk-common</artifactId>
+                    <groupId>com.unboundid.product.scim2</groupId>
+                    <version>3.0.0</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>jakarta.xml.bind</groupId>
+                            <artifactId>jakarta.xml.bind-api</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>jakarta.xml.bind</groupId>
+                    <artifactId>jakarta.xml.bind-api</artifactId>
+                    <version>2.3.2</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
+    </profiles>
 </project>
