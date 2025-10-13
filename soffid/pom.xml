@@ -211,11 +211,39 @@
                         </exclusion>
                     </exclusions>
                 </dependency>
+                
+                
                 <dependency>
                     <groupId>jakarta.xml.bind</groupId>
                     <artifactId>jakarta.xml.bind-api</artifactId>
                     <version>2.3.2</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>jakarta.activation</groupId>
+                            <artifactId>jakarta.activation-api</artifactId>
+                        </exclusion>
+                    </exclusions>
                 </dependency>
+                
+                
+                <dependency>
+                    <groupId>jakarta.activation</groupId>
+                    <artifactId>jakarta.activation-api</artifactId>
+                    <version>1.2.2.redhat-00001</version>
+                </dependency>
+               
+                <!--
+                <version>2.0.1.Final-redhat-00001</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <groupId>org.jboss.spec.javax.xml.bind</groupId>
+    <artifactId>jboss-jaxb-api_2.3_spec</artifactId>
+                 -->
+                
+                
+                
+                
+                
             </dependencies>
         </profile>
 
