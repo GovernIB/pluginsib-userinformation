@@ -196,9 +196,8 @@
             <dependencies>
                 <!-- Dependències específiques per a JBoss 7.4 -->
                 <dependency>
-                    <groupId>jakarta.mail</groupId>
-                    <artifactId>jakarta.mail-api</artifactId>
-                    <version>1.6.4</version>
+                    <groupId>com.sun.mail</groupId>
+                    <artifactId>jakarta.mail</artifactId>
                 </dependency>
                 <dependency>
                     <artifactId>scim2-sdk-common</artifactId>
