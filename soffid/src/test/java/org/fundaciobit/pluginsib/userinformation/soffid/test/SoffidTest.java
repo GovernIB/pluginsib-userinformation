@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -185,7 +187,8 @@ public class SoffidTest {
             System.err.println(" No es troba l'usuari amb NIF " + nif);
         } else {
             System.out.println(" Usuari amb NIF " + nif + ": Nom " + ui.getName() + " | Llinatge  " + ui.getSurname1()
-                    + " | nif: " + ui.getAdministrationID());
+                    + " | nif: " + ui.getAdministrationID() + "| Username: " + ui.getUsername() + " | Email: " + ui.getEmail());
+            System.out.println(ui.toFullInfo(""));
         }
 
         System.out.println(" Ha tardat: " + (System.currentTimeMillis() - start));
@@ -479,6 +482,11 @@ public class SoffidTest {
             SearchUsersResult sur = plugin.getUsersByPartialNameOrPartialSurnames(surname);
 
             System.out.println(" Resultats => " + sur.getUsers().size());
+            
+            for(UserInfo users :  sur.getUsers()) {
+                System.out.println("   - "  + users.getAdministrationID() + " | " + users.getUsername() + " | " + users.getName() + " | " + users.getSurname1() + " | " + users.getSurname2());
+            }
+            
 
             //checkSearchUsersResult(sur, ui.getUsername());
 
@@ -554,9 +562,13 @@ public class SoffidTest {
         System.out.println();
     }
 
-    public void testGetUserInfoByUserName() throws Exception {
+    
+    public List<UserInfo> testGetUserInfoByUserName() throws Exception {
 
         IUserInformationPlugin kcui = this.getInstance();
+        
+        
+        List<UserInfo> users = new ArrayList<>();
 
         String usernamesStr = getTestProperties().getProperty("usernames");
 
@@ -575,6 +587,8 @@ public class SoffidTest {
 
             if (ui != null) {
 
+                users.add(ui);
+                
                 if (username.equals(NONEXISTENTUSERNAME)) {
                     throw new Exception("Error ja que l'usuari " + username + " no existeix i ha retornat valors");
                 } else {
@@ -589,6 +603,9 @@ public class SoffidTest {
                 }
             }
         }
+        
+        
+        return users;
     }
 
     protected IUserInformationPlugin getInstance() throws Exception {
@@ -620,6 +637,7 @@ public class SoffidTest {
     }
 
     protected Properties getTestProperties() throws Exception {
+        /*
         Properties prop = new Properties();
 
         File f = new File("test.properties");
@@ -629,6 +647,22 @@ public class SoffidTest {
         }
 
         prop.load(new FileInputStream(f));
+
+        return prop;
+        */
+        
+        Properties prop = new Properties();
+
+        File f = new File("test.properties");
+
+        if (!f.exists()) {
+            throw new Exception("Aquest test necessita un fitxer " + f.getAbsolutePath());
+        }
+
+        try (FileInputStream fis = new FileInputStream(f);
+             InputStreamReader isr = new InputStreamReader(fis, "UTF-8")) {
+            prop.load(isr);
+        }
 
         return prop;
 

@@ -88,7 +88,13 @@
             <groupId>org.jboss.logging</groupId>
             <artifactId>commons-logging-jboss-logging</artifactId>
         </dependency>
-  
+        
+        <dependency>
+            <artifactId>pluginsib-utils-templateengine</artifactId>
+            <groupId>org.fundaciobit.pluginsib.utils</groupId>
+            <version>3.0.0-SNAPSHOT</version>
+        </dependency>
+
         <!--
         <dependency>
             <groupId>org.jboss.resteasy</groupId>

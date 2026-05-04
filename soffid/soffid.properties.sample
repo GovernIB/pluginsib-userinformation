@@ -31,3 +31,11 @@ org.fundaciobit.sample.pluginsib.userinformation.soffid.debug=true
 # Valor per defecte 100.
 # org.fundaciobit.sample.pluginsib.userinformation.soffid.maxallowednumberofresultsinpartialsearches=100
 	
+
+
+# Es pot fer substitució del EMAIL per una Expressions Language.
+#  Valors permesos són els camps de UserInfo: user.id, user.username, user.administrationID, user.name, 
+#               user.surname1, user.surname2, user.email, user.language, user.phoneNumber, user.mobileNumber,
+#               user.address, user.company, user.companyArea, user.companyDepartment, user.website, user.birthDate,
+#               user.creationDate, user.notes, user.dir3, user.dir3Parent, user.dir3Company, ...
+# org.fundaciobit.sample.pluginsib.userinformation.soffid.email_el=${user.username}@caib.es
