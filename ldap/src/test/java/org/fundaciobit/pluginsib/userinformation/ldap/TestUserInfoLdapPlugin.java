@@ -322,7 +322,9 @@ public class TestUserInfoLdapPlugin {
 
         return "{" + "\n\tusername: " + userInfo.getUsername() + "\n\tadministrationID: "
                 + userInfo.getAdministrationID() + "\n\tgetFullName: " + userInfo.getFullName() + "\n\temail: "
-                + userInfo.getEmail() + "\n}";
+                + userInfo.getEmail() 
+                + (userInfo.getCompanyDepartment() != null ? "\n\tdepartment: " + userInfo.getCompanyDepartment() : "")
+                + "\n}";
 
     }
 

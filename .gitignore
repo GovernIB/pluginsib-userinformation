@@ -29,3 +29,4 @@ nb-configuration.xml
 /ldap/connection.pro_caib.properties
 /soffid/src/test/java/org/fundaciobit/pluginsib/userinformation/soffid/test/MySoffidTest.java
 /keycloak/src/test/java/org/fundaciobit/pluginsib/userinformation/keycloak/MyKeyCloakTest.java
+/ldap/src/test/java/org/fundaciobit/pluginsib/userinformation/ldap/MyTestUserInfoLdapPlugin.java
