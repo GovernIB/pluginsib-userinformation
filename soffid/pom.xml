@@ -34,6 +34,11 @@
                     <groupId>net.jcip</groupId>
                     <artifactId>jcip-annotations</artifactId>
                 </exclusion>
+                <!-- Enforcer: evitar conflicte de convergència amb JBoss EAP 7.2 (1.0.0.Final vs 1.0.1.Final-redhat-1) -->
+                <exclusion>
+                    <groupId>org.jboss.spec.javax.xml.bind</groupId>
+                    <artifactId>jboss-jaxb-api_2.3_spec</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -48,6 +53,11 @@
                 <exclusion>
                     <groupId>com.sun.mail</groupId>
                     <artifactId>javax.mail</artifactId>
+                </exclusion>
+                <!-- Enforcer: evitar conflicte de convergència amb JBoss EAP 7.2 (1.0.0.Final vs 1.0.1.Final-redhat-1) -->
+                <exclusion>
+                    <groupId>org.jboss.spec.javax.xml.bind</groupId>
+                    <artifactId>jboss-jaxb-api_2.3_spec</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
