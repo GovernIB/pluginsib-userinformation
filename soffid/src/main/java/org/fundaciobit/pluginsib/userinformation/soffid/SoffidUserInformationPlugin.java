@@ -26,9 +26,24 @@ import org.fundaciobit.pluginsib.userinformation.soffid.beans.Attributes;
 import org.fundaciobit.pluginsib.userinformation.soffid.beans.Resource;
 import org.fundaciobit.pluginsib.userinformation.soffid.beans.SoffidUserResults;
 import org.fundaciobit.pluginsib.utils.templateengine.TemplateEngine;
+import org.jboss.logging.Logger;
 
 import com.unboundid.scim2.common.exceptions.NotImplementedException;
 import com.unboundid.scim2.common.messages.ErrorResponse;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.client.ClientRequestContext;
+import javax.ws.rs.client.ClientRequestFilter;
+import javax.ws.rs.client.ClientResponseContext;
+import javax.ws.rs.client.ClientResponseFilter;
+import javax.ws.rs.ext.WriterInterceptor;
+import javax.ws.rs.ext.WriterInterceptorContext;
 
 /**
  * Plugin per a la informació d'usuaris cridant a Soffid.
@@ -45,7 +60,7 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
     public static final String PASSWORD_PROPERTY = SOFFID_BASE_PROPERTY + "password";
 
     public static final String ENTORN_PROPERTY = SOFFID_BASE_PROPERTY + "entorn";
-    
+
     public static final String EMAIL_EL = SOFFID_BASE_PROPERTY + "email_el";
 
     public static final String MINIMUM_CHARACTERS_TO_SEARCH_PROPERTY = SOFFID_BASE_PROPERTY
@@ -55,6 +70,10 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
             + "maxallowednumberofresultsinpartialsearches";
 
     public static final String DEBUG_PROPERTY = SOFFID_BASE_PROPERTY + "debug";
+    
+    public static final String DEBUG_REST_PROPERTY = SOFFID_BASE_PROPERTY + "debugrest";
+    
+    
 
     //private CacheNifUsername cache = new CacheNifUsername();
 
@@ -82,6 +101,11 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
 
     protected boolean isDebug() {
         String debug = getProperty(DEBUG_PROPERTY, "false");
+        return "true".equals(debug);
+    }
+    
+    protected boolean isDebugRest() {
+        String debug = getProperty(DEBUG_REST_PROPERTY, "false");
         return "true".equals(debug);
     }
 
@@ -176,7 +200,15 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
         String credentials = username + ":" + password;
         String encodedCredentials = Base64.getEncoder().encodeToString(credentials.getBytes());
 
-        Client client = ClientBuilder.newBuilder().build();
+        ClientBuilder clientBuilder = ClientBuilder.newBuilder();
+        
+        
+        if (isDebugRest()) {
+            // Registrar el filtre de logging propi (inclou body de request i response)
+            clientBuilder.register(new LoggingClientFilter(log));
+        }
+
+        Client client = clientBuilder.build();
 
         WebTarget target = client.target(fullUrl);
 
@@ -297,7 +329,7 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
         } else {
             fullName = null;
         }
-                
+
         ui.setEmail(resource.getEmailAddress());
 
         ui.setName(resource.getFirstName());
@@ -396,10 +428,7 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
         if (attributes.size() != 0) {
             ui.setAttributes(attributes);
         }
-        
-        
-        
-        
+
         String emailEL = getProperty(EMAIL_EL);
         if (emailEL != null && emailEL.trim().length() != 0) {
             try {
@@ -408,7 +437,8 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
                 String email = TemplateEngine.processExpressionLanguage(emailEL, parameters);
                 ui.setEmail(email);
             } catch (Exception e) {
-                log.warn("Error al processar l'expression language per a l'email: " + emailEL + " - " + e.getMessage(), e);
+                log.warn("Error al processar l'expression language per a l'email: " + emailEL + " - " + e.getMessage(),
+                        e);
             }
         }
 
@@ -1102,6 +1132,71 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
         }
 
         return new SearchUsersResult(list);
+    }
+
+    // ... dins de la classe SoffidUserInformationPlugin
+
+    public static class LoggingClientFilter implements ClientRequestFilter, ClientResponseFilter, WriterInterceptor {
+
+        private final Logger log;
+
+        // Constructor: rep el log del plugin
+        public LoggingClientFilter(Logger log) {
+            this.log = log;
+        }
+
+        @Override
+        public void filter(ClientRequestContext requestContext) throws IOException {
+            // Registra la petició sortint (capçaleres)
+            log.info("HTTP Request => " + requestContext.getMethod() + " " + requestContext.getUri());
+            log.info("HTTP Request Headers => " + requestContext.getStringHeaders());
+            // El body del request es registra al mètode aroundWriteTo() (WriterInterceptor)
+        }
+
+        @Override
+        public void aroundWriteTo(WriterInterceptorContext context) throws IOException, WebApplicationException {
+            // Interceptam l'escriptura del body del request per poder-lo registrar
+            OutputStream originalStream = context.getOutputStream();
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            context.setOutputStream(buffer);
+            try {
+                context.proceed();
+            } finally {
+                byte[] bytes = buffer.toByteArray();
+                log.info("HTTP Request Body => " + new String(bytes, "UTF-8"));
+                // Tornam a escriure el body a l'stream original
+                originalStream.write(bytes);
+                context.setOutputStream(originalStream);
+            }
+        }
+
+        @Override
+        public void filter(ClientRequestContext requestContext, ClientResponseContext responseContext)
+                throws IOException {
+            // Registra la resposta rebuda (capçaleres)
+            log.info("HTTP Response <= Status: " + responseContext.getStatus());
+            log.info("HTTP Response Headers <= " + responseContext.getHeaders());
+
+            // Llegim el body de la resposta i el "rebobinam" perquè el pugui llegir readEntity()
+            if (responseContext.hasEntity()) {
+                InputStream is = responseContext.getEntityStream();
+                byte[] bytes = readAllBytes(is);
+                log.info("HTTP Response Body <= " + new String(bytes, "UTF-8"));
+                // Reposam l'stream perquè no quedi consumit
+                responseContext.setEntityStream(new ByteArrayInputStream(bytes));
+            }
+        }
+
+        // Llegeix tot l'stream a un array de bytes (Java 8 compatible)
+        private static byte[] readAllBytes(InputStream is) throws IOException {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            byte[] tmp = new byte[4096];
+            int n;
+            while ((n = is.read(tmp)) != -1) {
+                baos.write(tmp, 0, n);
+            }
+            return baos.toByteArray();
+        }
     }
 
 }

@@ -22,6 +22,7 @@ org.fundaciobit.sample.pluginsib.userinformation.soffid.entorn=web-des
 
 # Per depuració
 org.fundaciobit.sample.pluginsib.userinformation.soffid.debug=true
+org.fundaciobit.sample.pluginsib.userinformation.soffid.debugrest=false
 
 # Cerques Parcials
 
