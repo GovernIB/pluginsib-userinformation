@@ -235,12 +235,14 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
             
             Thread.sleep(10000);
             */
-/*
+            /*
             T value = response.readEntity(classe);
             response.close(); // You should close connections
             return value;
             */
             
+            // Error RESTEASY008200 al intentar connectar amb el plugin de SOFFID
+            // https://github.com/Fundacio-Bit/pinbaladmin/issues/409
             String json = response.readEntity(String.class); // sempre funciona: text pla
             response.close();
             try {
