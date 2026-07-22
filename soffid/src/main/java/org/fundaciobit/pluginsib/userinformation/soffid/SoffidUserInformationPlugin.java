@@ -70,10 +70,8 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
             + "maxallowednumberofresultsinpartialsearches";
 
     public static final String DEBUG_PROPERTY = SOFFID_BASE_PROPERTY + "debug";
-    
+
     public static final String DEBUG_REST_PROPERTY = SOFFID_BASE_PROPERTY + "debugrest";
-    
-    
 
     //private CacheNifUsername cache = new CacheNifUsername();
 
@@ -103,7 +101,7 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
         String debug = getProperty(DEBUG_PROPERTY, "false");
         return "true".equals(debug);
     }
-    
+
     protected boolean isDebugRest() {
         String debug = getProperty(DEBUG_REST_PROPERTY, "false");
         return "true".equals(debug);
@@ -181,6 +179,14 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
         return soffidUserResultToUserInfo(sur, urlOperation);
 
     }
+    
+    
+ // Camp de classe (thread-safe, reutilitzable)
+    private static final com.fasterxml.jackson.databind.ObjectMapper JACKSON_MAPPER =
+        new com.fasterxml.jackson.databind.ObjectMapper()
+            .configure(
+                com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
+                false);
 
     protected <T> T callToURL(String urlOperation, Class<T> classe) throws Exception {
 
@@ -201,8 +207,10 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
         String encodedCredentials = Base64.getEncoder().encodeToString(credentials.getBytes());
 
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
-        
-        
+
+        // Forçam Jackson com a provider JSON, independentment de l'entorn/JDK
+        clientBuilder.register(org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider.class);
+
         if (isDebugRest()) {
             // Registrar el filtre de logging propi (inclou body de request i response)
             clientBuilder.register(new LoggingClientFilter(log));
@@ -227,10 +235,22 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
             
             Thread.sleep(10000);
             */
-
+/*
             T value = response.readEntity(classe);
             response.close(); // You should close connections
             return value;
+            */
+            
+            String json = response.readEntity(String.class); // sempre funciona: text pla
+            response.close();
+            try {
+                return JACKSON_MAPPER.readValue(json, classe);
+            } catch (Exception e) {
+                throw new Exception("No s'ha pogut deserialitzar la resposta amb Jackson: "
+                    + e.getMessage(), e);
+            }
+            
+            
         } else {
 
             log.error("callToURL():: Error al cridar a la URL: " + fullUrl + " amb codi d'error " + response.getStatus()
