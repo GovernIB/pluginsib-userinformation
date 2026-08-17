@@ -537,7 +537,7 @@ public class SoffidTest {
         }
     }
 
-    protected void testGetUsernamesByRol() throws Exception {
+    protected  String[] testGetUsernamesByRol() throws Exception {
 
         IUserInformationPlugin plugin = getInstance();
 
@@ -545,21 +545,33 @@ public class SoffidTest {
 
         String[] users = plugin.getUsernamesByRol(rol);
         System.out.println("Usuaris amb ROL '" + rol + "': " + Arrays.toString(users));
+        
+        return users;
     }
 
-    protected void testGetUserInfoByRol() throws Exception {
+    protected UserInfo[]  testGetUserInfoByRol() throws Exception {
 
         IUserInformationPlugin plugin = getInstance();
 
         String rol = getTestProperties().getProperty("rol");
 
         UserInfo[] users = plugin.getUserInfoByRol(rol);
-        System.out.print("Usuaris amb ROL '" + rol + "'(" + users.length + "):");
+        System.out.println("Usuaris amb ROL '" + rol + "'(" + users.length + "):");
+        
+        
+        int max = 100;
         for (UserInfo userInfo : users) {
             System.out.println("\t" + userInfo.getName() + " " + userInfo.getSurname1() + " " + userInfo.getSurname2()
-                    + " - " + userInfo.getUsername() + "(" + userInfo.getAdministrationID() + ")");
+                    + " - " + userInfo.getUsername() + "(" + userInfo.getAdministrationID() + " -  " + userInfo.getEmail() + ")");
+            
+            
+            if (max-- <= 0) {
+                System.out.println("\t... i " + (users.length - 100) + " més");
+                break;
+            }
         }
         System.out.println();
+        return users;
     }
 
     

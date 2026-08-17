@@ -179,14 +179,12 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
         return soffidUserResultToUserInfo(sur, urlOperation);
 
     }
-    
-    
- // Camp de classe (thread-safe, reutilitzable)
-    private static final com.fasterxml.jackson.databind.ObjectMapper JACKSON_MAPPER =
-        new com.fasterxml.jackson.databind.ObjectMapper()
-            .configure(
-                com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
-                false);
+
+    // Camp de classe (thread-safe, reutilitzable)
+    private static final com.fasterxml.jackson.databind.ObjectMapper JACKSON_MAPPER = new com.fasterxml.jackson.databind.ObjectMapper()
+            .configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+    private boolean registratResteasyJackson2Provider = false;
 
     protected <T> T callToURL(String urlOperation, Class<T> classe) throws Exception {
 
@@ -209,7 +207,10 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
 
         // Forçam Jackson com a provider JSON, independentment de l'entorn/JDK
-        clientBuilder.register(org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider.class);
+        if (!registratResteasyJackson2Provider) {
+            registratResteasyJackson2Provider = true;
+            clientBuilder.register(org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider.class);
+        }
 
         if (isDebugRest()) {
             // Registrar el filtre de logging propi (inclou body de request i response)
@@ -240,19 +241,18 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
             response.close(); // You should close connections
             return value;
             */
-            
+
             // Error RESTEASY008200 al intentar connectar amb el plugin de SOFFID
             // https://github.com/Fundacio-Bit/pinbaladmin/issues/409
             String json = response.readEntity(String.class); // sempre funciona: text pla
+
             response.close();
             try {
                 return JACKSON_MAPPER.readValue(json, classe);
             } catch (Exception e) {
-                throw new Exception("No s'ha pogut deserialitzar la resposta amb Jackson: "
-                    + e.getMessage(), e);
+                throw new Exception("No s'ha pogut deserialitzar la resposta amb Jackson: " + e.getMessage(), e);
             }
-            
-            
+
         } else {
 
             log.error("callToURL():: Error al cridar a la URL: " + fullUrl + " amb codi d'error " + response.getStatus()
@@ -601,18 +601,20 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
             DES: http://ssoffidiam1.caib.es:8080/soffid/webservice/scim2/v1/RoleAccount?filter=roleName+eq+"NOT_USER"+and+enabled+eq+true+and+system+eq+"web-des"
         */
 
+        // El problema es que retorna els usuaris però només amb Informació de username i Nom complet.
+        /*
         String entorn = getPropertyRequired(ENTORN_PROPERTY);
-
+        
         final boolean debug = isDebug();
         if (debug) {
             log.info("getUserInfoByRol() => Entorn: " + entorn);
         }
-
+        
         String urlOperation = "/RoleAccount?sortBy=userCode&filter=roleName+eq+\"" + rol
                 + "\"+and+enabled+eq+true+and+system+eq+\"" + entorn + "\"";
-
+        
         List<Resource> resources = consultaPaginada(urlOperation, debug, false);
-
+        
         //String sur = callToURL(urlOperation, String.class);
         UserInfo[] users = new UserInfo[resources.size()];
         int count = 0;
@@ -620,8 +622,62 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
             users[count] = resourceToUserInfo(resource);
             count++;
         }
-
+        
         return users;
+        */
+
+        // SOLUCIO per evitar el problema anterior: (1) Llegir Usernames (2) Anar llegint UserInfo en blocs de 100"
+        boolean debug = isDebug();
+       if (debug) {
+           log.info("PRE USERNAMES per al rol " + rol);
+       }
+
+        String[] usernames = getUsernamesByRol(rol);
+        
+        if (debug) {
+            log.info("POST USERNAMES per al rol " + rol + ": " + usernames.length);
+        }
+
+        List<UserInfo> userInfos = new ArrayList<UserInfo>(usernames.length);
+
+        for (int i = 0; i < usernames.length; i++) {
+
+            // Extreure 100 usernames
+            int start = i;
+            int end = Math.min(i + 120, usernames.length);
+
+            StringBuilder sb = new StringBuilder();
+
+            for (int j = start; j < end; j++) {
+                String username = usernames[j];
+                //UserInfo ui = getUserInfoByUserName(username);
+                //usernames[j] = ui.getUsername(); // Reemplaçar amb el username real (per si hi ha algun problema)
+
+                String urlOperation = "userName eq \"" + username + "\"";
+
+                if (sb.length() != 0) {
+                    sb.append(" OR ");
+                }
+
+                sb.append(urlOperation);
+
+            }
+            if (debug) {
+                log.info("CONSULTA ROL DES DE " + start + " fins a " + (end - 1));
+            }
+            List<Resource> resources = consultaPaginada("/User?filter=" + sb.toString(), isDebug(), false);
+
+            userInfos.addAll(resourcesToUserInfoList(resources));
+
+            i = end - 1; // Avançar fins a l'últim username processat
+
+        }
+        
+        if (debug) {
+            log.info(" USERINFOS " + userInfos.size() + " per al rol " + rol);
+        }
+
+        return userInfos.toArray(new UserInfo[userInfos.size()]);
 
     }
 
