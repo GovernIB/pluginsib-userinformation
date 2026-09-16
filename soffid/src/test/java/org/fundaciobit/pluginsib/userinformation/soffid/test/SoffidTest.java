@@ -195,6 +195,42 @@ public class SoffidTest {
         
         return ui;
     }
+    
+    
+    
+    
+    public void testSearchByPartialMultipleValuesOrWithOneParam(String param) throws Exception {
+    
+        
+        IUserInformationPlugin soffid = getInstance();
+        
+        
+        SearchUsersResult sur;
+        
+        //param = "*" + param + "*";
+    
+        sur = soffid.getUsersByPartialValuesOr(param, param, param, null, param);
+        
+        
+        if (sur.getStatus().getResultCode() != SearchStatus.RESULT_OK) {
+            throw new Exception(" ERROR [testSearchByPartialMultipleValuesOrWithOneParam] = " + sur.getStatus().getResultMessage());
+        };
+        
+        
+        System.out.println("Trobats " + sur.getUsers().size() + " usuaris amb param parcial " + param);
+        int count  = 1;
+        for (UserInfo u : sur.getUsers()) {
+            System.out.println(count + ".- " + u.getAdministrationID() + " | " + u.getUsername() + " | " + u.getName() + " | " + u.getSurname1() + " | " + u.getEmail());
+            count++;
+           
+            // OK
+        }
+    
+    }
+    
+    
+    
+    
 
     protected void testSearchByPartialMultipleValuesOr() throws Exception {
 
@@ -211,6 +247,7 @@ public class SoffidTest {
         testSearchByPartialMultipleValuesAndOr(isAnd);
 
     }
+    
 
     protected void testSearchByPartialMultipleValuesAndOr(boolean isAnd) throws Exception {
 
