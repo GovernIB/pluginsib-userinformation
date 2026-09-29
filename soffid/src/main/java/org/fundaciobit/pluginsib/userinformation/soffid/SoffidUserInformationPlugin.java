@@ -73,6 +73,8 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
 
     public static final String DEBUG_REST_PROPERTY = SOFFID_BASE_PROPERTY + "debugrest";
 
+    public static final String VALIDATE_CREDENTIALS_URL_PROPERTY = SOFFID_BASE_PROPERTY + "authenticationurl";
+
     //private CacheNifUsername cache = new CacheNifUsername();
 
     /**
@@ -220,10 +222,16 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
     protected <T> T callToURL(String urlOperation, Class<T> classe) throws Exception {
 
         CallToUrl callToUrl = new CallToUrl();
-        return callToURL(callToUrl, urlOperation, classe);
+        return callToURL(callToUrl, urlOperation, classe, null);
     }
 
     protected <T> T callToURL(CallToUrl callToUrl, String urlOperation, Class<T> classe) throws Exception {
+
+        return callToURL(callToUrl, urlOperation, classe, null);
+
+    }
+
+    protected <T> T callToURL(CallToUrl callToUrl, String urlOperation, Class<T> classe, String body) throws Exception {
 
         String urlbase = getPropertyRequired(SERVER_URL_PROPERTY);
 
@@ -499,14 +507,77 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
 
     @Override
     public boolean isImplementedAuthenticationByUsernamePasword() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean authenticate(String username, String password) throws Exception {
-        // TODO
-        throw new NotImplementedException(
-                "Mètode autenticate(usr, pwd) no implementat. Per favor consulta mètode isImplementedAuthenticationByUsernamePasword()");
+
+        String validateCredentialsUrl = getPropertyRequired(VALIDATE_CREDENTIALS_URL_PROPERTY);
+
+        String identityProvider = "soffid";
+        String serviceProviderName = "idp-caib";
+
+        Map<String, String> bodyMap = new LinkedHashMap<String, String>();
+        bodyMap.put("user", username);
+        bodyMap.put("password", password);
+        bodyMap.put("identityProvider", identityProvider);
+        bodyMap.put("serviceProviderName", serviceProviderName);
+
+        String jsonBody;
+        try {
+            jsonBody = JACKSON_MAPPER.writeValueAsString(bodyMap);
+        } catch (Exception e) {
+            throw new Exception("No s'ha pogut generar el body JSON per validar les credencials: " + e.getMessage(), e);
+        }
+
+        System.out.println("URL: ]" + validateCredentialsUrl + "[");
+
+        // No fem servir CallToUrl perquè aquest servei no requereix autenticació Basic
+        // (les credencials d'admin de SERVER_URL_PROPERTY), sinó que envia
+        // usuari/contrasenya dins del propi body.
+        ClientBuilder clientBuilder = ClientBuilder.newBuilder();
+        if (isDebugRest()) {
+            clientBuilder.register(new LoggingClientFilter(log));
+        }
+
+        Client client = clientBuilder.build();
+        try {
+            WebTarget target = client.target(validateCredentialsUrl);
+
+            Response response = target.request(javax.ws.rs.core.MediaType.APPLICATION_JSON)
+                    .header(javax.ws.rs.core.HttpHeaders.CONTENT_TYPE, javax.ws.rs.core.MediaType.APPLICATION_JSON)
+                    .post(javax.ws.rs.client.Entity.entity(jsonBody, javax.ws.rs.core.MediaType.APPLICATION_JSON));
+
+            final int status = response.getStatus();
+            try {
+                String responseBody = response.readEntity(String.class);
+
+                //System.out.println(
+                //        "--------- responseBody ------------\n" + responseBody + "---------------------------\n");
+
+                if (isDebug()) {
+                    log.debug("authenticate():: username: " + username + " - Status: " + status + " - Resposta: "
+                            + responseBody);
+                }
+
+                if (status == 200) {
+                    // TODO: si el servei retorna algun camp indicant èxit/fracàs dins del JSON
+                    // (per exemple {"valid": true}), ajusta aquí la comprovació en lloc de
+                    // limitar-te només al codi d'estat HTTP.
+                    return true;
+                } else {
+                    log.warn("authenticate():: Credencials invàlides o error per a l'usuari " + username + " (status "
+                            + status + "): " + responseBody);
+                    return false;
+                }
+            } finally {
+                response.close();
+            }
+        } finally {
+            client.close();
+        }
+
     }
 
     @Override
@@ -663,7 +734,7 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
 
         for (int i = 0; i < usernames.length; i++) {
 
-            // Extreure 100 usernames
+            // Extreure 120 usernames
             int start = i;
             int end = Math.min(i + 120, usernames.length);
 
