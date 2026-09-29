@@ -32,6 +32,8 @@ public class UserInfo {
 
     protected String email;
 
+    protected String email2;
+
     protected String language;
 
     protected String phoneNumber;
@@ -114,6 +116,14 @@ public class UserInfo {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getEmail2() {
+        return email2;
+    }
+
+    public void setEmail2(String email2) {
+        this.email2 = email2;
     }
 
     public String getLanguage() {
@@ -358,9 +368,9 @@ public class UserInfo {
         if (birthDate != null) {
             str.append(tab + "birthDate: " + this.birthDate + "\n");
         }
-        
+
         if (pseudonyms != null && pseudonyms.size() != 0) {
-            str.append(tab + "pseudonyms:" +  pseudonyms + "\n");
+            str.append(tab + "pseudonyms:" + pseudonyms + "\n");
         }
 
         if (creationDate != null) {

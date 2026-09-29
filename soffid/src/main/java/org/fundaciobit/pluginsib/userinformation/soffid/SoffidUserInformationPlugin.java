@@ -379,6 +379,7 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
         }
 
         ui.setEmail(resource.getEmailAddress());
+       
 
         ui.setName(resource.getFirstName());
         ui.setSurname1(resource.getLastName());
@@ -428,6 +429,7 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
                 String value = att.getValue();
 
                 switch (key) {
+                    
                     case Attributes.E_MAIL_CONTACTE:
                         if (ui.getEmail() == null) {
                             ui.setEmail(value);
@@ -483,6 +485,9 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
                 Map<String, Object> parameters = new LinkedHashMap<String, Object>();
                 parameters.put("user", ui);
                 String email = TemplateEngine.processExpressionLanguage(emailEL, parameters);
+                
+                ui.setEmail2(ui.getEmail()); // Guardam l'email original abans de sobreescriure'l
+                
                 ui.setEmail(email);
             } catch (Exception e) {
                 log.warn("Error al processar l'expression language per a l'email: " + emailEL + " - " + e.getMessage(),
@@ -846,7 +851,7 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
     }
 
     /**
-     * TODO PER ARA NO FUNCIONA
+     *
      * 
      * @param partialEmail
      * @return
@@ -855,20 +860,29 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
     @Override
     public SearchUsersResult getUsersByPartialEmail(String partialEmail) throws Exception {
 
-        throw new NotImplementedException("Mètode getUsersByPartialEmail(partialEmail) no implementat.");
-
-        /*
-         *    AQUEST CODI ES BO !!!!!!
-         *    
-         *    NO ESBORRAR  !!!!!
-         *    
         SearchStatus ss = checkMinimumPartialString(partialEmail, "partialEmail");
         if (ss != null) {
             return new SearchUsersResult(ss);
         }
+
+        /*
+         Si es vol cercar el correu electrònic "usuari@dgtic.caib.es" dins el camp "emailAddress" la crida hauria de ser:
+          GET https://intranet.caib.es/soffid/webservice/scim2/v1/User?filter=shortName eq 'usuari' and mailDomain eq 'dgtic.caib.es'
+        Si es vol cercar el correu electrònic "usuari@dgtic.caib.es" dins el camp "mailAlias" la crida hauria de ser:
+        GET https://intranet.caib.es/soffid/webservice/scim2/v1/User?filter=userMailList.mailList.name eq 'usuari' and userMailList.mailList.domain.name eq 'dgtic.caib.es'
         
-        // https://intranet.caib.es/soffid/webservice/scim2/v1/User?filter=userName co "u885"
+        Òbviament, es poden combinar els condicionals i els diferents operadors al filtre per tal d'obtenir la cerca que vulguem realitzar.
+         */
+
+         String filter = getFiltrePerEmailParcial(partialEmail);
         
+        String urlOperation = "/User?filter=" + filter;
+
+        List<Resource> resources = consultaPaginada(urlOperation, isDebug(), true);
+        List<UserInfo> users = resourcesToUserInfoList(resources);
+        return new SearchUsersResult(users);
+
+        /*
         final String urlOperation = "/User?filter='attributes." + Attributes.E_MAIL_CONTACTE + "' co \"" + partialEmail + "\""; 
         
         SoffidUserResults results = callToURL(urlOperation, SoffidUserResults.class);
@@ -885,6 +899,42 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
         return new SearchUsersResult(us);
         */
     }
+    
+    
+    
+    
+    protected String getFiltrePerEmailParcial(String partialEmail) throws Exception{
+        final String filter;
+        if (partialEmail.contains("@")) {
+            String[] parts = partialEmail.split("@");
+
+            if (parts.length == 1) {
+                // Te el format "usuari@". Cercam amb endwith
+                filter = "(shortName ew '" + parts[0] + "')";
+            } else {
+
+                if (parts.length != 2) {
+
+                    throw new Exception(
+                            "El correu electrònic parcial (" + partialEmail + ") no és vàlid: conté vàris caracters @");
+
+                }
+
+                String shortName = parts[0];
+                String mailDomain = parts[1];
+                filter = "(shortName co '" + shortName + "' and mailDomain sw '" + mailDomain + "')";
+            }
+
+        } else {
+            // Si no conté @, llavors cerquem dins shortname 
+            filter = "(shortName co '" + partialEmail + "')";
+
+        }
+        return filter;
+    }
+    
+    
+    
 
     @Override
     public SearchUsersResult getUsersByPartialNameOrPartialSurnames(String partialNameOrSurname) throws Exception {
@@ -1035,147 +1085,24 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
 
     }
 
-    /*
-    protected SearchUsersResult getUsersByPartialValuesAndOr(String usernamePartial, String firstNamePartial,
-            String lastNamePartial, String emailPartial, String administrationIDPartial, boolean isAnd)
-            throws Exception {
-    
-        final String metode = (isAnd) ? "getUsersByPartialValuesAnd()" : "getUsersByPartialValuesOr()";
-    
-        if (!empty(emailPartial) && empty(usernamePartial) && empty(firstNamePartial) && empty(lastNamePartial)
-                && empty(administrationIDPartial)) {
-            throw new NotImplementedException("Només ha definit el camp 'emailPartial' del mètode " + metode
-                    + " però aquesta cerca no està implementada. "
-                    + "Si la combina al altres camps de cerca llavors si que es pot utilitzar");
-        } else {
-            if (!isAnd) {
-                log.warn("Ha cridat al mètode " + metode + " amb el camp 'emailPartial' definit,"
-                        + " però aquest camp de cerca no està implementat,"
-                        + " o sigui que la cerca actual ignorarà aquest camp");
-            }
-        }
-    
-        long startT = 0;
-    
-        final boolean debug = isDebug();
-        if (debug) {
-            startT = System.currentTimeMillis();
-        }
-    
-        // Cercam la mitja de longitud de les cadenes de cerca.
-        // Aquesta ha de superar el mínim permés
-    
-        // TODO NO suportam per ara EMAIL
-        final String[] soffidKeys = { "userName", "firstName", "lastName",
-                "attributes." + Attributes.NIF  };
-    
-        final String[] values = { usernamePartial, firstNamePartial, lastNamePartial,
-                administrationIDPartial };
-        final String[] field = { "usernamePartial", "firstNamePartial", "lastNamePartial",
-                "administrationIDPartial" };
-        float suma = 0;
-        float count = 0;
-        String camps = "";
-        StringBuilder filtre = new StringBuilder();
-        final int minimumCharachtersToSearch = getMinimumCharactersToSearch();
-        for (int j = 0; j < values.length; j++) {
-            String v = values[j];
-            if (v != null && v.trim().length() != 0) {
-                suma = suma + v.length();
-                count = count + 1;
-                if (v.length() < minimumCharachtersToSearch) {
-                    camps = camps + "," + field[j];
-                }
-                if (filtre.length() != 0) {
-                    filtre.append(isAnd ? " AND " : " OR ");
-                }
-                filtre.append(soffidKeys[j]).append(" co \"").append(v).append("\"");
-    
-                if (!isAnd && field[j].equals("lastNamePartial")) {
-                    // Afegim el segon llinatge que està a "middleName"
-                    filtre.append(" OR middleName co \"").append(v).append("\"");
-                }
-    
-            }
-        }
-    
-        if (count == 0) {
-            String searchString = null;
-            SearchStatus ss = errorCadenaDeCercaNullBuida(searchString);
-    
-            return new SearchUsersResult(ss);
-        }
-    
-        final float mitja = suma / count;
-    
-        if (mitja < minimumCharachtersToSearch) {
-            SearchStatus ss = errorCadenaDeCercaMassaCurta(mitja, minimumCharachtersToSearch, "*");
-    
-            return new SearchUsersResult(ss);
-        }
-    
-        final String urlOperation = "/User?filter=" + filtre.toString();
-    
-        if (debug) {
-            log.info("La recuperació de dades d'usuari en la cerca de " + metode + " es farà amb el següent filtre: "
-                    + filtre.toString());
-        }
-    
-        List<UserInfo> allResults;
-        try {
-            List<Resource> resources = consultaPaginada(urlOperation, isDebug(), true);
-    
-            allResults = resourcesToUserInfoList(resources);
-    
-        } catch (ExceededMaximumAllowedResultsException e) {
-            return new SearchUsersResult(e.getSmax());
-        }
-    
-    
-        List<UserInfo> list;
-        if (empty(emailPartial) || isAnd == false) {
-            list = allResults;
-        } else {
-    
-            // Si es AND podem aplicar filtre addicional per email per codi java
-            list = new ArrayList<UserInfo>(allResults.size());
-    
-            for (UserInfo userInfo : allResults) {
-                if (userInfo.getEmail() != null
-                        && userInfo.getEmail().toLowerCase().contains(emailPartial.toLowerCase())) {
-                    list.add(userInfo);
-                }
-            }
-        }
-    
-        if (debug) {
-            log.info("La recuperació de dades d'usuari en la cerca de " + metode + " ]" + filtre.toString()
-                    + "[, ha tardat " + (System.currentTimeMillis() - startT) + "ms");
-        }
-    
-        return new SearchUsersResult(list);
-    }
-    
-    */
+   
 
+    /**
+     * 
+     * @param usernamePartial
+     * @param firstNamePartial
+     * @param lastNamePartial
+     * @param emailPartial
+     * @param administrationIDPartial
+     * @param isAnd
+     * @return
+     * @throws Exception
+     */
     public SearchUsersResult getUsersByPartialValuesAndOr(String usernamePartial, String firstNamePartial,
             String lastNamePartial, /* String lastNamePartial2, */ String emailPartial, String administrationIDPartial,
             boolean isAnd) throws Exception {
 
         final String metode = (isAnd) ? "getUsersByPartialValuesAnd()" : "getUsersByPartialValuesOr()";
-
-        if (!empty(emailPartial) && empty(usernamePartial) && empty(firstNamePartial) && empty(lastNamePartial)
-                && empty(administrationIDPartial)) {
-            throw new NotImplementedException("Només ha definit el camp 'emailPartial' del mètode " + metode
-                    + " però aquesta cerca no està implementada. "
-                    + "Si la combina al altres camps de cerca llavors si que es pot utilitzar");
-        } else {
-            if (!isAnd) {
-                log.warn("Ha cridat al mètode " + metode + " amb el camp 'emailPartial' definit,"
-                        + " però aquest camp de cerca no està implementat,"
-                        + " o sigui que la cerca actual ignorarà aquest camp");
-            }
-        }
 
         long startT = 0;
 
@@ -1209,7 +1136,7 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
                     camps = camps + "," + field[j];
                 }
                 if (filtre.length() != 0) {
-                    filtre.append(isAnd ? " AND " : " OR ");
+                    filtre.append(isAnd ? " and " : " or ");
                 }
 
                 if (field[j].equals("lastNamePartial")) {
@@ -1218,12 +1145,12 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
                     filtre.append(" ( ");
                     for (int k = 0; k < parts.length; k++) {
                         if (k != 0) {
-                            filtre.append(" AND ");
+                            filtre.append(" and ");
                         }
                         String part = parts[k];
 
                         filtre.append("(").append("lastName").append(" co \"").append(part)
-                                .append("\" OR middleName co \"").append(part).append("\")");
+                                .append("\" or middleName co \"").append(part).append("\")");
 
                     }
                     filtre.append(" ) ");
@@ -1234,6 +1161,21 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
 
             }
         }
+        
+        
+        if (emailPartial != null && emailPartial.trim().length() != 0) {
+            
+            if (emailPartial.length() > minimumCharachtersToSearch) {
+                suma = suma + emailPartial.length();
+                count = count + 1;
+                if (filtre.length() != 0) {
+                    filtre.append(isAnd ? " and " : " or ");
+                }
+                filtre.append(getFiltrePerEmailParcial(emailPartial));
+            }
+        }
+        
+        
 
         if (count == 0) {
             String searchString = null;
@@ -1253,14 +1195,13 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
         final String urlOperation = "/User?filter=" + filtre.toString();
 
         if (debug) {
-            log.info("La recuperació de dades d'usuari en la cerca de " + metode + " es farà amb el següent filtre: "
-                    + filtre.toString());
+            log.info("La recuperació de dades d'usuari en la cerca de " + metode + " es farà amb el següent url: "
+                    + urlOperation);
         }
 
         List<UserInfo> allResults;
         try {
             List<Resource> resources = consultaPaginada(urlOperation, isDebug(), true);
-
             allResults = resourcesToUserInfoList(resources);
 
         } catch (ExceededMaximumAllowedResultsException e) {
@@ -1280,28 +1221,14 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
         List<UserInfo> allResults = soffidUserResultToUserInfos(results);
         */
 
-        List<UserInfo> list;
-        if (empty(emailPartial) || isAnd == false) {
-            list = allResults;
-        } else {
-
-            // Si es AND podem aplicar filtre addicional per email per codi java
-            list = new ArrayList<UserInfo>(allResults.size());
-
-            for (UserInfo userInfo : allResults) {
-                if (userInfo.getEmail() != null
-                        && userInfo.getEmail().toLowerCase().contains(emailPartial.toLowerCase())) {
-                    list.add(userInfo);
-                }
-            }
-        }
+        
 
         if (debug) {
             log.info("La recuperació de dades d'usuari en la cerca de " + metode + " ]" + filtre.toString()
                     + "[, ha tardat " + (System.currentTimeMillis() - startT) + "ms");
         }
 
-        return new SearchUsersResult(list);
+        return new SearchUsersResult(allResults);
     }
 
     // ... dins de la classe SoffidUserInformationPlugin

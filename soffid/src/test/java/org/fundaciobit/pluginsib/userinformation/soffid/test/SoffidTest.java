@@ -187,50 +187,43 @@ public class SoffidTest {
             System.err.println(" No es troba l'usuari amb NIF " + nif);
         } else {
             System.out.println(" Usuari amb NIF " + nif + ": Nom " + ui.getName() + " | Llinatge  " + ui.getSurname1()
-                    + " | nif: " + ui.getAdministrationID() + "| Username: " + ui.getUsername() + " | Email: " + ui.getEmail());
+                    + " | nif: " + ui.getAdministrationID() + "| Username: " + ui.getUsername() + " | Email: "
+                    + ui.getEmail());
             System.out.println(ui.toFullInfo(""));
         }
 
         System.out.println(" Ha tardat: " + (System.currentTimeMillis() - start));
-        
+
         return ui;
     }
-    
-    
-    
-    
+
     public void testSearchByPartialMultipleValuesOrWithOneParam(String param) throws Exception {
-    
-        
+
         IUserInformationPlugin soffid = getInstance();
-        
-        
+
         SearchUsersResult sur;
-        
+
         //param = "*" + param + "*";
-    
+
         sur = soffid.getUsersByPartialValuesOr(param, param, param, null, param);
-        
-        
+
         if (sur.getStatus().getResultCode() != SearchStatus.RESULT_OK) {
-            throw new Exception(" ERROR [testSearchByPartialMultipleValuesOrWithOneParam] = " + sur.getStatus().getResultMessage());
-        };
-        
-        
+            throw new Exception(
+                    " ERROR [testSearchByPartialMultipleValuesOrWithOneParam] = " + sur.getStatus().getResultMessage());
+        }
+        ;
+
         System.out.println("Trobats " + sur.getUsers().size() + " usuaris amb param parcial " + param);
-        int count  = 1;
+        int count = 1;
         for (UserInfo u : sur.getUsers()) {
-            System.out.println(count + ".- " + u.getAdministrationID() + " | " + u.getUsername() + " | " + u.getName() + " | " + u.getSurname1() + " | " + u.getEmail());
+            System.out.println(count + ".- " + u.getAdministrationID() + " | " + u.getUsername() + " | " + u.getName()
+                    + " | " + u.getSurname1() + " | " + u.getEmail());
             count++;
-           
+
             // OK
         }
-    
+
     }
-    
-    
-    
-    
 
     protected void testSearchByPartialMultipleValuesOr() throws Exception {
 
@@ -247,7 +240,6 @@ public class SoffidTest {
         testSearchByPartialMultipleValuesAndOr(isAnd);
 
     }
-    
 
     protected void testSearchByPartialMultipleValuesAndOr(boolean isAnd) throws Exception {
 
@@ -323,33 +315,35 @@ public class SoffidTest {
 
         String partialNif = getTestProperties().getProperty("partialdni");
 
-        
-        if (partialNif == null || partialNif.isEmpty() ) {
+        if (partialNif == null || partialNif.isEmpty()) {
             throw new Exception("No s'ha definit la propietat 'partialdni' en el fitxer test.properties");
         }
 
         log.info(" ========= CERCA AMB NIF PARCIAL " + partialNif + " ===========");
 
         SearchUsersResult sur = plugin.getUsersByPartialAdministrationID(partialNif);
-        
+
         if (sur.getStatus().getResultCode() != SearchStatus.RESULT_OK) {
             throw new Exception(" ERROR [testSearchByPartialAdministrationID] = " + sur.getStatus().getResultMessage());
-        };
-        
+        }
+        ;
+
         System.out.println("Trobats " + sur.getUsers().size() + " usuaris amb NIF parcial " + partialNif);
-        
+
         for (UserInfo u : sur.getUsers()) {
             if (u.getAdministrationID() == null) {
-                throw new Exception(" ERROR [testSearchByPartialAdministrationID] = usuari " + u.getUsername() + " te NIF null i no s'ajusta al partialdni " + partialNif);
+                throw new Exception(" ERROR [testSearchByPartialAdministrationID] = usuari " + u.getUsername()
+                        + " te NIF null i no s'ajusta al partialdni " + partialNif);
             }
             if (u.getAdministrationID().indexOf(partialNif) == -1) {
-                throw new Exception(" ERROR [testSearchByPartialAdministrationID] = usuari " + u.getUsername() + " te NIF " + u.getAdministrationID() + " i no s'ajusta al partialdni " + partialNif); 
+                throw new Exception(" ERROR [testSearchByPartialAdministrationID] = usuari " + u.getUsername()
+                        + " te NIF " + u.getAdministrationID() + " i no s'ajusta al partialdni " + partialNif);
             }
             // OK
         }
 
         log.info("      OK. Usuari s'ajusten al partialNif.");
-        
+
         return sur.getUsers();
 
     }
@@ -449,42 +443,78 @@ public class SoffidTest {
 
         IUserInformationPlugin plugin = getInstance();
 
-        String[] usrs = getTestProperties().getProperty("usernames").split(",");
+        String partialEmail = getTestProperties().getProperty("searchbypartialemail");
 
-        for (String username : usrs) {
+        log.info("---------------- Cerca per email parcial " + partialEmail + " ---------------------");
 
-            if (username.equals(NONEXISTENTUSERNAME)) {
-                continue;
+        int andSearch;
+        {
+            String usernamePartial = null;
+            String firstNamePartial = null;
+            String lastNamePartial = null;
+            String emailPartial = partialEmail;
+            String administrationIDPartial = null;
+            SearchUsersResult sur2 = plugin.getUsersByPartialValuesAnd(usernamePartial, firstNamePartial,
+                    lastNamePartial, emailPartial, administrationIDPartial);
+
+            if (sur2 == null || sur2.getStatus() == null
+                    || sur2.getStatus().getResultCode() != SearchStatus.RESULT_OK) {
+                throw new Exception(" ERROR [testSearchByPartialEmail]::getUsersByPartialValuesAnd = "
+                        + (sur2 == null ? "Unknown Error" : sur2.getStatus().getResultMessage()));
             }
+            System.out.println(" Resultats[getUsersByPartialValuesAnd] => " + sur2.getUsers().size());
+            andSearch = sur2.getUsers().size();
 
-            UserInfo ui = plugin.getUserInfoByUserName(username);
+        }
 
-            String email = ui.getEmail();
+        int orSearch;
+        {
+            String usernamePartial = null;
+            String firstNamePartial = null;
+            String lastNamePartial = null;
+            String emailPartial = partialEmail;
+            String administrationIDPartial = null;
+            SearchUsersResult sur2 = plugin.getUsersByPartialValuesOr(usernamePartial, firstNamePartial,
+                    lastNamePartial, emailPartial, administrationIDPartial);
 
-            String partialEmail = email.substring(1, email.length() - 2);
-
-            log.info("---------------- Cerca per email parcial " + partialEmail + "  (" + ui.getUsername()
-                    + ") ---------------------");
-
-            try {
-
-                SearchUsersResult sur = plugin.getUsersByPartialEmail(partialEmail);
-
-                checkSearchUsersResult(sur, username);
-
-                log.info("      Resultat Cerca OK.");
-
-                throw new Exception("El mètode getUsersByPartialEmail hauria d'estar no implemnetat.");
-
-            } catch (Exception e) {
-                if (!e.getMessage().contains("getUsersByPartialEmail(partialEmail) no implementat")) {
-                    e.printStackTrace();
-                    throw new Exception(
-                            "S'esperava una excepció de mètode no implementat però s'ha rebut una excepcio: "
-                                    + e.getMessage());
-                }
+            if (sur2 == null || sur2.getStatus() == null
+                    || sur2.getStatus().getResultCode() != SearchStatus.RESULT_OK) {
+                throw new Exception(" ERROR [testSearchByPartialEmail]::getUsersByPartialValuesOr = "
+                        + (sur2 == null ? "Unknown Error" : sur2.getStatus().getResultMessage()));
             }
+            System.out.println(" Resultats[getUsersByPartialValuesOr] => " + sur2.getUsers().size());
+            orSearch = sur2.getUsers().size();
+        }
 
+        SearchUsersResult sur = plugin.getUsersByPartialEmail(partialEmail);
+
+        if (sur == null || sur.getStatus() == null || sur.getStatus().getResultCode() != SearchStatus.RESULT_OK) {
+            throw new Exception(" ERROR [testSearchByPartialEmail]::getUsersByPartialEmail = "
+                    + (sur == null ? "Unknown Error" : sur.getStatus().getResultMessage()));
+        }
+
+        System.out.println(" Resultats[getUsersByPartialEmail] => " + sur.getUsers().size());
+
+        int partialEmailSearch = sur.getUsers().size();
+
+        if (partialEmailSearch != andSearch || partialEmailSearch != orSearch) {
+            throw new Exception(" ERROR [testSearchByPartialEmail]::getUsersByPartialEmail = "
+                    + "El nombre de resultats de getUsersByPartialEmail(" + partialEmail + ") és " + partialEmailSearch
+                    + " però el nombre de resultats de getUsersByPartialValuesAnd(...) és " + andSearch
+                    + " i el nombre de resultats de getUsersByPartialValuesOr(...) és " + orSearch);
+        }
+
+        log.info("      Resultat Cerca OK.");
+        int count = 30;
+        for (UserInfo userInfo : sur.getUsers()) {
+            System.out.println("   - " + userInfo.getUsername() + "\t| " + userInfo.getName() + "\t| "
+                    + userInfo.getSurname1() + "\t| " + userInfo.getEmail() + "\t| " + userInfo.getEmail2());
+
+            if (--count < 0) {
+                System.out.println("   ... i " + (sur.getUsers().size() - 30) + " més");
+                break;
+
+            }
         }
 
     }
@@ -519,11 +549,11 @@ public class SoffidTest {
             SearchUsersResult sur = plugin.getUsersByPartialNameOrPartialSurnames(surname);
 
             System.out.println(" Resultats => " + sur.getUsers().size());
-            
-            for(UserInfo users :  sur.getUsers()) {
-                System.out.println("   - "  + users.getAdministrationID() + " | " + users.getUsername() + " | " + users.getName() + " | " + users.getSurname1() + " | " + users.getSurname2());
+
+            for (UserInfo users : sur.getUsers()) {
+                System.out.println("   - " + users.getAdministrationID() + " | " + users.getUsername() + " | "
+                        + users.getName() + " | " + users.getSurname1() + " | " + users.getSurname2());
             }
-            
 
             //checkSearchUsersResult(sur, ui.getUsername());
 
@@ -574,7 +604,7 @@ public class SoffidTest {
         }
     }
 
-    protected  String[] testGetUsernamesByRol() throws Exception {
+    protected String[] testGetUsernamesByRol() throws Exception {
 
         IUserInformationPlugin plugin = getInstance();
 
@@ -582,11 +612,11 @@ public class SoffidTest {
 
         String[] users = plugin.getUsernamesByRol(rol);
         System.out.println("Usuaris amb ROL '" + rol + "': " + Arrays.toString(users));
-        
+
         return users;
     }
 
-    protected UserInfo[]  testGetUserInfoByRol() throws Exception {
+    protected UserInfo[] testGetUserInfoByRol() throws Exception {
 
         IUserInformationPlugin plugin = getInstance();
 
@@ -594,14 +624,13 @@ public class SoffidTest {
 
         UserInfo[] users = plugin.getUserInfoByRol(rol);
         System.out.println("Usuaris amb ROL '" + rol + "'(" + users.length + "):");
-        
-        
+
         int max = 100;
         for (UserInfo userInfo : users) {
             System.out.println("\t" + userInfo.getName() + " " + userInfo.getSurname1() + " " + userInfo.getSurname2()
-                    + " - " + userInfo.getUsername() + "(" + userInfo.getAdministrationID() + " -  " + userInfo.getEmail() + ")");
-            
-            
+                    + " - " + userInfo.getUsername() + "(" + userInfo.getAdministrationID() + " -  "
+                    + userInfo.getEmail() + ")");
+
             if (max-- <= 0) {
                 System.out.println("\t... i " + (users.length - 100) + " més");
                 break;
@@ -611,12 +640,10 @@ public class SoffidTest {
         return users;
     }
 
-    
     public List<UserInfo> testGetUserInfoByUserName() throws Exception {
 
         IUserInformationPlugin kcui = this.getInstance();
-        
-        
+
         List<UserInfo> users = new ArrayList<>();
 
         String usernamesStr = getTestProperties().getProperty("usernames");
@@ -637,7 +664,7 @@ public class SoffidTest {
             if (ui != null) {
 
                 users.add(ui);
-                
+
                 if (username.equals(NONEXISTENTUSERNAME)) {
                     throw new Exception("Error ja que l'usuari " + username + " no existeix i ha retornat valors");
                 } else {
@@ -652,8 +679,7 @@ public class SoffidTest {
                 }
             }
         }
-        
-        
+
         return users;
     }
 
@@ -688,18 +714,18 @@ public class SoffidTest {
     protected Properties getTestProperties() throws Exception {
         /*
         Properties prop = new Properties();
-
+        
         File f = new File("test.properties");
-
+        
         if (!f.exists()) {
             throw new Exception("Aquest test necessita un fitxer " + f.getAbsolutePath());
         }
-
+        
         prop.load(new FileInputStream(f));
-
+        
         return prop;
         */
-        
+
         Properties prop = new Properties();
 
         File f = new File("test.properties");
@@ -709,7 +735,7 @@ public class SoffidTest {
         }
 
         try (FileInputStream fis = new FileInputStream(f);
-             InputStreamReader isr = new InputStreamReader(fis, "UTF-8")) {
+                InputStreamReader isr = new InputStreamReader(fis, "UTF-8")) {
             prop.load(isr);
         }
 

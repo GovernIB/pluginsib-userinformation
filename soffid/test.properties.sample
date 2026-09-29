@@ -15,3 +15,6 @@ rol=PFI_USER
 
 auth.username=u666666
 auth.password=holacaracola
+
+
+searchbypartialemail=test@caib.es
