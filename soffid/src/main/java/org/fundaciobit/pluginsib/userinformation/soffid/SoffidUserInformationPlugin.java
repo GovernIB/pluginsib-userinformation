@@ -184,9 +184,46 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
     private static final com.fasterxml.jackson.databind.ObjectMapper JACKSON_MAPPER = new com.fasterxml.jackson.databind.ObjectMapper()
             .configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-    private boolean registratResteasyJackson2Provider = false;
+    //private boolean registratResteasyJackson2Provider = false;
+
+    public class CallToUrl {
+
+        public final ClientBuilder clientBuilder;
+
+        public final String encodedCredentials;
+
+        public CallToUrl() throws Exception {
+
+            String username = getPropertyRequired(USERNAME_PROPERTY);
+            String password = getPropertyRequired(PASSWORD_PROPERTY);
+
+            String credentials = username + ":" + password;
+            encodedCredentials = Base64.getEncoder().encodeToString(credentials.getBytes());
+
+            clientBuilder = ClientBuilder.newBuilder();
+
+            // Forçam Jackson com a provider JSON, independentment de l'entorn/JDK
+            //            if (!registratResteasyJackson2Provider) {
+            //                registratResteasyJackson2Provider = true;
+            //                clientBuilder.register(org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider.class);
+            //            }
+
+            if (isDebugRest()) {
+                // Registrar el filtre de logging propi (inclou body de request i response)
+                clientBuilder.register(new LoggingClientFilter(log));
+            }
+
+        }
+
+    }
 
     protected <T> T callToURL(String urlOperation, Class<T> classe) throws Exception {
+
+        CallToUrl callToUrl = new CallToUrl();
+        return callToURL(callToUrl, urlOperation, classe);
+    }
+
+    protected <T> T callToURL(CallToUrl callToUrl, String urlOperation, Class<T> classe) throws Exception {
 
         String urlbase = getPropertyRequired(SERVER_URL_PROPERTY);
 
@@ -198,31 +235,12 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
 
         String fullUrl = urlbase + urlOperation;
 
-        String username = getPropertyRequired(USERNAME_PROPERTY);
-        String password = getPropertyRequired(PASSWORD_PROPERTY);
-
-        String credentials = username + ":" + password;
-        String encodedCredentials = Base64.getEncoder().encodeToString(credentials.getBytes());
-
-        ClientBuilder clientBuilder = ClientBuilder.newBuilder();
-
-        // Forçam Jackson com a provider JSON, independentment de l'entorn/JDK
-        if (!registratResteasyJackson2Provider) {
-            registratResteasyJackson2Provider = true;
-            clientBuilder.register(org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider.class);
-        }
-
-        if (isDebugRest()) {
-            // Registrar el filtre de logging propi (inclou body de request i response)
-            clientBuilder.register(new LoggingClientFilter(log));
-        }
-
-        Client client = clientBuilder.build();
+        Client client = callToUrl.clientBuilder.build();
 
         WebTarget target = client.target(fullUrl);
 
         Response response = target.request("application/scim+json")
-                .header(javax.ws.rs.core.HttpHeaders.AUTHORIZATION, "Basic " + encodedCredentials).get();
+                .header(javax.ws.rs.core.HttpHeaders.AUTHORIZATION, "Basic " + callToUrl.encodedCredentials).get();
 
         final int status = response.getStatus();
 
@@ -515,11 +533,14 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
         int total = -1;
 
         int startIndex = 1;
+
+        CallToUrl callToUrl = new CallToUrl();
+
         do {
 
             String urlOperation = urlOperationBase + "&startIndex=" + startIndex;
 
-            SoffidUserResults sur = callToURL(urlOperation, SoffidUserResults.class);
+            SoffidUserResults sur = callToURL(callToUrl, urlOperation, SoffidUserResults.class);
 
             if (startIndex == 1) {
                 total = sur.getTotalResults();
@@ -628,12 +649,12 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
 
         // SOLUCIO per evitar el problema anterior: (1) Llegir Usernames (2) Anar llegint UserInfo en blocs de 100"
         boolean debug = isDebug();
-       if (debug) {
-           log.info("PRE USERNAMES per al rol " + rol);
-       }
+        if (debug) {
+            log.info("PRE USERNAMES per al rol " + rol);
+        }
 
         String[] usernames = getUsernamesByRol(rol);
-        
+
         if (debug) {
             log.info("POST USERNAMES per al rol " + rol + ": " + usernames.length);
         }
@@ -672,7 +693,7 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
             i = end - 1; // Avançar fins a l'últim username processat
 
         }
-        
+
         if (debug) {
             log.info(" USERINFOS " + userInfos.size() + " per al rol " + rol);
         }
@@ -691,7 +712,7 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
             log.info("getUsernamesByRol() => Entorn: " + entorn);
         }
 
-        String urlOperation = "/RoleAccount?sortBy=userCode&filter=roleName+eq+\"" + rol
+        String urlOperation = "/RoleAccount?&attributes=userCode&sortBy=userCode&filter=roleName+eq+\"" + rol
                 + "\"+and+enabled+eq+true+and+system+eq+\"" + entorn + "\"";
 
         List<Resource> resources = consultaPaginada(urlOperation, debug, false);
