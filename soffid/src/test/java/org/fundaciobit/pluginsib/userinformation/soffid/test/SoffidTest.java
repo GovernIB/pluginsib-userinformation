@@ -589,13 +589,18 @@ public class SoffidTest {
             String username = prop.getProperty("auth.username");
             String password = prop.getProperty("auth.password");
 
-            if (!plugin.authenticate(username, password)) {
+            if (plugin.authenticate(username, password)) {
+                System.out.println("S'ha pogut autenticar correctament l'usuari " + username + " amb contrasenya correcta.");
+            } else {
                 throw new Exception("No s'ha pogut autenticar usuari " + username + ".");
             }
 
             // Autenticació errònia
             if (plugin.authenticate(username, password + "222222")) {
                 throw new Exception("Error greu ja que s'ha pogut autenticar l'usuari " + username
+                        + " amb una contrasenya incorrecta.");
+            } else {
+                System.out.println("Correcte. No s'ha pogut autenticar l'usuari " + username
                         + " amb una contrasenya incorrecta.");
             }
 

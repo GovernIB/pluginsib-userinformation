@@ -25,6 +25,7 @@ import org.fundaciobit.pluginsib.userinformation.UserInfo;
 import org.fundaciobit.pluginsib.userinformation.soffid.beans.Attributes;
 import org.fundaciobit.pluginsib.userinformation.soffid.beans.Resource;
 import org.fundaciobit.pluginsib.userinformation.soffid.beans.SoffidUserResults;
+import org.fundaciobit.pluginsib.userinformation.soffid.beans.ValidateCredentials;
 import org.fundaciobit.pluginsib.utils.templateengine.TemplateEngine;
 import org.jboss.logging.Logger;
 
@@ -377,9 +378,9 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
         } else {
             fullName = null;
         }
+        ui.setFullName(fullName);
 
         ui.setEmail(resource.getEmailAddress());
-       
 
         ui.setName(resource.getFirstName());
         ui.setSurname1(resource.getLastName());
@@ -411,9 +412,18 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
 
         }
 
+        ui.setActive(resource.getActive());
+
+        ui.setUsername(getUsernameOfResource(resource));
         {
-            String username = getUsernameOfResource(resource);
-            ui.setUsername(username);
+            String userType = resource.getUserType();
+            if (userType != null && userType.trim().length() != 0) {
+                if ("W".equals(userType)) {
+                    ui.setApp(true);
+                } else if ("I".equals(userType)) {
+                    ui.setApp(false);
+                }
+            }
         }
 
         ui.setCompanyDepartment(resource.getPrimaryGroup());
@@ -429,7 +439,7 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
                 String value = att.getValue();
 
                 switch (key) {
-                    
+
                     case Attributes.E_MAIL_CONTACTE:
                         if (ui.getEmail() == null) {
                             ui.setEmail(value);
@@ -485,9 +495,9 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
                 Map<String, Object> parameters = new LinkedHashMap<String, Object>();
                 parameters.put("user", ui);
                 String email = TemplateEngine.processExpressionLanguage(emailEL, parameters);
-                
+
                 ui.setEmail2(ui.getEmail()); // Guardam l'email original abans de sobreescriure'l
-                
+
                 ui.setEmail(email);
             } catch (Exception e) {
                 log.warn("Error al processar l'expression language per a l'email: " + emailEL + " - " + e.getMessage(),
@@ -536,11 +546,14 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
             throw new Exception("No s'ha pogut generar el body JSON per validar les credencials: " + e.getMessage(), e);
         }
 
-        System.out.println("URL: ]" + validateCredentialsUrl + "[");
+        // Credencials Basic (usuari/contrasenya d'admin definides a les propietats
+        // del plugin) que s'utilitzen per autenticar-se contra el servei de
+        // validació de credencials.
+        String adminUsername = getPropertyRequired(USERNAME_PROPERTY);
+        String adminPassword = getPropertyRequired(PASSWORD_PROPERTY);
+        String credentials = adminUsername + ":" + adminPassword;
+        String encodedCredentials = Base64.getEncoder().encodeToString(credentials.getBytes());
 
-        // No fem servir CallToUrl perquè aquest servei no requereix autenticació Basic
-        // (les credencials d'admin de SERVER_URL_PROPERTY), sinó que envia
-        // usuari/contrasenya dins del propi body.
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
         if (isDebugRest()) {
             clientBuilder.register(new LoggingClientFilter(log));
@@ -552,14 +565,15 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
 
             Response response = target.request(javax.ws.rs.core.MediaType.APPLICATION_JSON)
                     .header(javax.ws.rs.core.HttpHeaders.CONTENT_TYPE, javax.ws.rs.core.MediaType.APPLICATION_JSON)
+                    .header(javax.ws.rs.core.HttpHeaders.AUTHORIZATION, "Basic " + encodedCredentials)
                     .post(javax.ws.rs.client.Entity.entity(jsonBody, javax.ws.rs.core.MediaType.APPLICATION_JSON));
 
             final int status = response.getStatus();
             try {
-                String responseBody = response.readEntity(String.class);
 
-                //System.out.println(
-                //        "--------- responseBody ------------\n" + responseBody + "---------------------------\n");
+                // TODO XYZ ZZZ ValidateCredentials validate =  response.readEntity(ValidateCredentials.class);
+
+                String responseBody = response.readEntity(String.class);
 
                 if (isDebug()) {
                     log.debug("authenticate():: username: " + username + " - Status: " + status + " - Resposta: "
@@ -567,14 +581,20 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
                 }
 
                 if (status == 200) {
-                    // TODO: si el servei retorna algun camp indicant èxit/fracàs dins del JSON
-                    // (per exemple {"valid": true}), ajusta aquí la comprovació en lloc de
-                    // limitar-te només al codi d'estat HTTP.
-                    return true;
+
+                    ValidateCredentials validate = JACKSON_MAPPER.readValue(responseBody, ValidateCredentials.class);
+                    if (validate.getValid() == null || validate.getValid() == false) {
+                        log.warn("authenticate():: Credencials invàlides per a l'usuari " + username + " - Motiu: "
+                                + validate.getFailureReason());
+                        return false;
+                    } else {                        
+                        return true;
+                    }
+
                 } else {
-                    log.warn("authenticate():: Credencials invàlides o error per a l'usuari " + username + " (status "
-                            + status + "): " + responseBody);
-                    return false;
+
+                    throw new Exception("authenticate():: Error en la cridada a validacio de l'usuari " + username
+                            + ": " + responseBody + "  (status " + status + ")");
                 }
             } finally {
                 response.close();
@@ -865,45 +885,25 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
             return new SearchUsersResult(ss);
         }
 
-        /*
-         Si es vol cercar el correu electrònic "usuari@dgtic.caib.es" dins el camp "emailAddress" la crida hauria de ser:
-          GET https://intranet.caib.es/soffid/webservice/scim2/v1/User?filter=shortName eq 'usuari' and mailDomain eq 'dgtic.caib.es'
-        Si es vol cercar el correu electrònic "usuari@dgtic.caib.es" dins el camp "mailAlias" la crida hauria de ser:
-        GET https://intranet.caib.es/soffid/webservice/scim2/v1/User?filter=userMailList.mailList.name eq 'usuari' and userMailList.mailList.domain.name eq 'dgtic.caib.es'
-        
-        Òbviament, es poden combinar els condicionals i els diferents operadors al filtre per tal d'obtenir la cerca que vulguem realitzar.
-         */
+        String filter = getFiltrePerEmailParcial(partialEmail);
 
-         String filter = getFiltrePerEmailParcial(partialEmail);
-        
         String urlOperation = "/User?filter=" + filter;
 
         List<Resource> resources = consultaPaginada(urlOperation, isDebug(), true);
         List<UserInfo> users = resourcesToUserInfoList(resources);
         return new SearchUsersResult(users);
 
-        /*
-        final String urlOperation = "/User?filter='attributes." + Attributes.E_MAIL_CONTACTE + "' co \"" + partialEmail + "\""; 
-        
-        SoffidUserResults results = callToURL(urlOperation, SoffidUserResults.class);
-        
-        final int maxAllowed = getMaxAllowedNumberOfResults();
-        
-        if (results.getTotalResults() > maxAllowed) {
-            SearchStatus smax = errorMassaResultats(maxAllowed, results.getTotalResults());
-            return new SearchUsersResult(smax);
-        }
-        
-        List<UserInfo> us = soffidUserResultToUserInfos(results);
-        
-        return new SearchUsersResult(us);
-        */
     }
+
+    /**
+    Si es vol cercar el correu electrònic "usuari@dgtic.caib.es" dins el camp "emailAddress" la crida hauria de ser:
+     GET https://intranet.caib.es/soffid/webservice/scim2/v1/User?filter=shortName eq 'usuari' and mailDomain eq 'dgtic.caib.es'
+    Si es vol cercar el correu electrònic "usuari@dgtic.caib.es" dins el camp "mailAlias" la crida hauria de ser:
+    GET https://intranet.caib.es/soffid/webservice/scim2/v1/User?filter=userMailList.mailList.name eq 'usuari' and userMailList.mailList.domain.name eq 'dgtic.caib.es'
     
-    
-    
-    
-    protected String getFiltrePerEmailParcial(String partialEmail) throws Exception{
+    Òbviament, es poden combinar els condicionals i els diferents operadors al filtre per tal d'obtenir la cerca que vulguem realitzar.
+    */
+    protected String getFiltrePerEmailParcial(String partialEmail) throws Exception {
         final String filter;
         if (partialEmail.contains("@")) {
             String[] parts = partialEmail.split("@");
@@ -932,9 +932,6 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
         }
         return filter;
     }
-    
-    
-    
 
     @Override
     public SearchUsersResult getUsersByPartialNameOrPartialSurnames(String partialNameOrSurname) throws Exception {
@@ -1085,8 +1082,6 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
 
     }
 
-   
-
     /**
      * 
      * @param usernamePartial
@@ -1161,10 +1156,9 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
 
             }
         }
-        
-        
+
         if (emailPartial != null && emailPartial.trim().length() != 0) {
-            
+
             if (emailPartial.length() > minimumCharachtersToSearch) {
                 suma = suma + emailPartial.length();
                 count = count + 1;
@@ -1174,8 +1168,6 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
                 filtre.append(getFiltrePerEmailParcial(emailPartial));
             }
         }
-        
-        
 
         if (count == 0) {
             String searchString = null;
@@ -1220,8 +1212,6 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
         }
         List<UserInfo> allResults = soffidUserResultToUserInfos(results);
         */
-
-        
 
         if (debug) {
             log.info("La recuperació de dades d'usuari en la cerca de " + metode + " ]" + filtre.toString()
