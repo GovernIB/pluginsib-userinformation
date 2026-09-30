@@ -30,6 +30,8 @@ public class UserInfo {
 
     protected String surname2;
 
+    protected String fullName;
+
     protected String email;
 
     protected String email2;
@@ -63,6 +65,11 @@ public class UserInfo {
     protected String dir3Parent;
 
     protected String dir3Company;
+
+    protected Boolean active = null;
+
+    /** Indica si quest usuari és un usuari aplicació, utilitzat normalment per autenticar cridades WebServices */
+    protected Boolean app = null;
 
     protected Set<String> pseudonyms;
 
@@ -278,7 +285,32 @@ public class UserInfo {
         this.attributes = attributes;
     }
 
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
+    public Boolean getApp() {
+        return app;
+    }
+
+    public void setApp(Boolean app) {
+        this.app = app;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
     public String getFullName() {
+
+        if (this.fullName != null) {
+            return this.fullName;
+        }
+
         StringBuffer str = new StringBuffer();
         if (this.getName() != null) {
             str.append(name);
@@ -308,80 +340,116 @@ public class UserInfo {
 
         StringBuilder str = new StringBuilder();
 
+        // id
         if (id != null) {
             str.append(tab + "id: " + this.id + "\n");
-        } //id
+        }
+        // username
         if (username != null) {
             str.append(tab + "username: " + this.username + "\n");
-        } //username
+        }
+        // administrationID
         if (administrationID != null) {
             str.append(tab + "administrationID: " + this.administrationID + "\n");
-        } //administrationID
+        }
+        // name
         if (name != null) {
             str.append(tab + "name: " + this.name + "\n");
-        } //name
+        }
+        // surname1
         if (surname1 != null) {
             str.append(tab + "surname1: " + this.surname1 + "\n");
-        } //surname1
+        }
+        // surname2
         if (surname2 != null) {
             str.append(tab + "surname2: " + this.surname2 + "\n");
-        } //surname2
+        }
+        // fullName
+        if (fullName != null) {
+            str.append(tab + "fullName: " + this.fullName + "\n");
+        }
+        // email
         if (email != null) {
             str.append(tab + "email: " + this.email + "\n");
-        } //email
+        }
+        // email2
+        if (email2 != null) {
+            str.append(tab + "email2: " + this.email2 + "\n");
+        }
+        // app
+        str.append(tab + "isapplication: " + this.app + "\n");
+        // language
         if (language != null) {
             str.append(tab + "language: " + this.language + "\n");
-        } //language
+        }
+        // phoneNumber
         if (phoneNumber != null) {
             str.append(tab + "phoneNumber: " + this.phoneNumber + "\n");
-        } //phoneNumber
+        }
+        // mobileNumber
+        if (mobileNumber != null) {
+            str.append(tab + "mobileNumber: " + this.mobileNumber + "\n");
+        }
+        // address
         if (address != null) {
             str.append(tab + "address: " + this.address + "\n");
-        } //address
+        }
+        // company
         if (company != null) {
             str.append(tab + "company: " + this.company + "\n");
-        } //company
+        }
+        // companyArea
         if (companyArea != null) {
             str.append(tab + "companyArea: " + this.companyArea + "\n");
-        } //companyArea
+        }
+        // companyDepartment
         if (companyDepartment != null) {
             str.append(tab + "companyDepartment: " + this.companyDepartment + "\n");
-        } //companyDepartment
+        }
+        // website
         if (website != null) {
             str.append(tab + "website: " + this.website + "\n");
-        } //website
+        }
+        // notes
         if (notes != null) {
             str.append(tab + "notes: " + this.notes + "\n");
-        } //notes
+        }
+        // dir3
         if (dir3 != null) {
             str.append(tab + "dir3: " + this.dir3 + "\n");
-        } //dir3
+        }
+        // dir3Parent
         if (dir3Parent != null) {
             str.append(tab + "dir3Parent: " + this.dir3Parent + "\n");
-        } //dir3Parent
-
-        //Gender gender = Gender.UNKNOWN;
+        }
+        // dir3Company
+        if (dir3Company != null) {
+            str.append(tab + "dir3Company: " + this.dir3Company + "\n");
+        }
+        // gender (Gender.UNKNOWN per defecte)
         if (gender != null) {
             str.append(tab + "gender: " + this.gender + "\n");
         }
-
+        // active
+        str.append(tab + "active: " + this.active + "\n");
+        // birthDate
         if (birthDate != null) {
             str.append(tab + "birthDate: " + this.birthDate + "\n");
         }
-
+        // pseudonyms
         if (pseudonyms != null && pseudonyms.size() != 0) {
             str.append(tab + "pseudonyms:" + pseudonyms + "\n");
         }
-
+        // creationDate
         if (creationDate != null) {
             str.append(tab + "creationDate: " + this.creationDate + "\n");
         }
-
+        // socialNetworks
         if (socialNetworks != null && socialNetworks.size() != 0) {
             str.append(tab + "socialNetworks:\n");
             socialNetworks.forEach((k, v) -> str.append(tab + tab + "- " + k + " => " + v + "\n"));
         }
-
+        // attributes
         if (attributes != null && attributes.size() != 0) {
             str.append(tab + "attributes:\n");
             attributes.forEach((k, v) -> str.append(tab + tab + "- " + k + " => " + v + "\n"));
