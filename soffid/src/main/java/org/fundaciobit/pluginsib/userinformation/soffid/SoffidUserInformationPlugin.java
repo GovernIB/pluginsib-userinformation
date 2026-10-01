@@ -415,12 +415,20 @@ public class SoffidUserInformationPlugin extends AbstractUserInformationPlugin {
         ui.setActive(resource.getActive());
 
         ui.setUsername(getUsernameOfResource(resource));
+        /* Valors de userType:
+                "B": Usuari IB-Salut (intern)
+                "C": Usuari IB-Salut (extern)
+                "E": External user
+                "I": Internal user
+                "Z": Usuari alumne
+                "W": Usuari aplicació
+         */
         {
             String userType = resource.getUserType();
             if (userType != null && userType.trim().length() != 0) {
                 if ("W".equals(userType)) {
                     ui.setApp(true);
-                } else if ("I".equals(userType)) {
+                } else {
                     ui.setApp(false);
                 }
             }
